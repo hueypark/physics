@@ -43,6 +43,12 @@ func (v *Vector) Add(o Vector) {
 	v.Z += o.Z
 }
 
+func (v *Vector) AddScaledVector(o Vector, scale float64) {
+	v.X += o.X * scale
+	v.Y += o.Y * scale
+	v.Z += o.Z * scale
+}
+
 func (v *Vector) Subtract(o Vector) {
 	v.X -= o.X
 	v.Y -= o.Y
