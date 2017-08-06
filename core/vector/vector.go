@@ -55,6 +55,12 @@ func (v *Vector) Subtract(o Vector) {
 	v.Z -= o.Z
 }
 
+func (v *Vector) Clear() {
+	v.X = 0
+	v.Y = 0
+	v.Z = 0
+}
+
 func Product(lhs, rhs Vector) Vector {
 	return Vector{lhs.X * rhs.X, lhs.Y * rhs.Y, lhs.Z * rhs.Z}
 }

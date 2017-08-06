@@ -13,14 +13,14 @@ func main() {
 	s := server.New()
 	engine := physics.New()
 	r := rigidbody.New()
-	r.Position = vector.Vector{0, 0, 0}
-	r.Velocity = vector.Vector{-10, 0, 0}
+	r.SetMass(1)
 	engine.Add(r)
 
 	delta := time.Second / 30
 	ticker := time.NewTicker(delta)
 	go func() {
 		for range ticker.C {
+			r.AddForce(vector.Vector{0, 1, 0})
 			engine.Tick(delta.Seconds())
 			for _, object := range engine.GetObjects() {
 				s.Broadcast(object)
