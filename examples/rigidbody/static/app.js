@@ -13,8 +13,7 @@ class World {
     constructor() {
         this.scene = new THREE.Scene()
         this.actors = new Map()
-        let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000)
-        camera.position.z = 50
+        let camera = new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, -500, 1000 );
 
         let renderer = new THREE.WebGLRenderer()
         renderer.setSize(window.innerWidth, window.innerHeight)
@@ -38,9 +37,8 @@ class World {
     updatePosition(id, position) {
         let actor = this.actors.get(id)
 
-        actor.cube.position.x = position.x
-        actor.cube.position.y = position.y
-        actor.cube.position.z = position.z
+        actor.cube.position.x = position.X
+        actor.cube.position.y = position.Y
     }
 
     has(Id) {
@@ -48,20 +46,15 @@ class World {
     }
 }
 
-function CreateThreePosition(position) {
-    return new THREE.Vector3(position.Y, position.Z, -position.X)
-}
-
 class Actor {
     constructor(id, position) {
         this.Id = id
-        let geometry = new THREE.BoxGeometry( 1, 1, 1 )
+        let geometry = new THREE.BoxGeometry( 10, 10, 10 )
         let material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } )
         this.cube = new THREE.Mesh( geometry, material )
 
-        this.cube.position.x = position.x
-        this.cube.position.y = position.y
-        this.cube.position.z = position.z
+        this.cube.position.x = position.X
+        this.cube.position.y = position.Y
     }
 }
 
@@ -69,9 +62,9 @@ let world = new World()
 
 new Socket((name, json) => {
     if (world.has(json.Id)) {
-        world.updatePosition(json.Id, CreateThreePosition(json.Position))
+        world.updatePosition(json.Id, json.Position)
     } else {
-        let actor = new Actor(json.Id, CreateThreePosition(json.Position))
+        let actor = new Actor(json.Id, json.Position)
         world.add(actor)
     }
 })
