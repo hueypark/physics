@@ -9,8 +9,13 @@ type Rigidbody struct {
 	Id          int64
 	Position    vector.Vector
 	Velocity    vector.Vector
+	Shape       shape
 	inverseMass float64
 	forceSum    vector.Vector
+}
+
+type shape interface {
+	Type() int64
 }
 
 func New() *Rigidbody {
@@ -37,6 +42,10 @@ func (r *Rigidbody) Tick(delta float64) {
 
 func (r *Rigidbody) SetMass(mass float64) {
 	r.inverseMass = 1.0 / mass
+}
+
+func (r *Rigidbody) SetShape(s shape) {
+	r.Shape = s
 }
 
 func (r *Rigidbody) AddForce(force vector.Vector) {

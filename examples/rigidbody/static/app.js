@@ -31,14 +31,14 @@ class World {
 
     add(actor) {
         this.actors.set(actor.Id, actor)
-        this.scene.add(actor.cube)
+        this.scene.add(actor.shape)
     }
 
     updatePosition(id, position) {
         let actor = this.actors.get(id)
 
-        actor.cube.position.x = position.X
-        actor.cube.position.y = position.Y
+        actor.shape.position.x = position.X
+        actor.shape.position.y = position.Y
     }
 
     has(Id) {
@@ -47,14 +47,20 @@ class World {
 }
 
 class Actor {
-    constructor(id, position) {
+    constructor(id, position, shape) {
         this.Id = id
-        let geometry = new THREE.BoxGeometry( 10, 10, 10 )
-        let material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } )
-        this.cube = new THREE.Mesh( geometry, material )
+        if (shape.Radius) {
+            let geometry = new THREE.CircleGeometry(shape.Radius, 32)
+            let material = new THREE.MeshBasicMaterial({color: 0x00ff00})
+            this.shape = new THREE.Mesh(geometry, material)
+        } else {
+            let geometry = new THREE.BoxGeometry(10, 10, 10)
+            let material = new THREE.MeshBasicMaterial({color: 0x00ff00})
+            this.shape = new THREE.Mesh(geometry, material)
+        }
 
-        this.cube.position.x = position.X
-        this.cube.position.y = position.Y
+        this.shape.position.x = position.X
+        this.shape.position.y = position.Y
     }
 }
 
@@ -64,7 +70,9 @@ new Socket((name, json) => {
     if (world.has(json.Id)) {
         world.updatePosition(json.Id, json.Position)
     } else {
-        let actor = new Actor(json.Id, json.Position)
+        let actor = new Actor(json.Id, json.Position, json.Shape)
         world.add(actor)
     }
+
+    console.log(json)
 })
