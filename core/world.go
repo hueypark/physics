@@ -3,46 +3,62 @@ package physics
 import (
 	"github.com/hueypark/physics/core/body"
 	"github.com/hueypark/physics/core/contact"
+	"github.com/hueypark/physics/core/vector"
 )
 
 type World struct {
-	bodys map[int64]*body.Body
+	bodys   map[int64]*body.Body
+	gravity vector.Vector
 }
 
-type contactSource struct {
-	lhs body.Body
-	rhs body.Body
+type source struct {
+	lhs, rhs *body.Body
 }
 
 func New() World {
-	return World{make(map[int64]*body.Body)}
+	return World{make(map[int64]*body.Body), vector.Vector{0.0, -100.0}}
 }
 
-func (e *World) Tick(delta float64) {
-	sources := e.generateSources()
+func (w *World) Tick(delta float64) {
+	sources := w.generateSources()
 
-	e.generateContacts(sources)
+	w.generateContacts(sources)
 
-	for _, actor := range e.bodys {
-		actor.Tick(delta)
+	for _, b := range w.bodys {
+		b.AddForce(w.gravity)
+		b.Tick(delta)
 	}
 }
 
-func (e *World) Add(body *body.Body) {
-	e.bodys[Context.IdGenerator.Generate()] = body
+func (w *World) Add(body *body.Body) {
+	w.bodys[Context.IdGenerator.Generate()] = body
 }
 
-func (e *World) GetObjects() map[int64]*body.Body {
-	return e.bodys
+func (w *World) SetGravity(gravity vector.Vector) {
+	w.gravity = gravity
 }
 
-func (e *World) generateSources() []contactSource {
-	sources := []contactSource{}
+func (w *World) GetBodys() map[int64]*body.Body {
+	return w.bodys
+}
+
+func (w *World) generateSources() []source {
+	sources := []source{}
+
+	for _, lhs := range w.bodys {
+		for _, rhs := range w.bodys {
+			if lhs.Id() <= rhs.Id() {
+				continue
+			}
+
+			sources = append(sources, source{lhs, rhs})
+		}
+	}
 
 	return sources
 }
 
-func (e *World) generateContacts([]contactSource) []contact.Contact {
+func (w *World) generateContacts(sources []source) []contact.Contact {
 	contacts := []contact.Contact{}
 
 	return contacts

@@ -50,6 +50,7 @@ class Actor {
     constructor(id, position, shape) {
         this.Id = id
         if (shape.type == "circle") {
+            console.log(shape)
             let geometry = new THREE.CircleGeometry(shape.radius, 32)
             let material = new THREE.MeshBasicMaterial({color: 0x00ff00})
             this.shape = new THREE.Mesh(geometry, material)
@@ -69,7 +70,6 @@ let world = new World()
 new Socket((name, json) => {
     switch (name) {
         case "Actor":
-            console.log(json)
             if (world.has(json.id)) {
                 world.updatePosition(json.id, json.position)
             } else {
