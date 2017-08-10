@@ -1,6 +1,10 @@
 package physics
 
+import "github.com/hueypark/physics/core/vector"
+
 type Actor interface {
+	Id() int64
+	Position() vector.Vector
 	Tick(delta float64)
 }
 

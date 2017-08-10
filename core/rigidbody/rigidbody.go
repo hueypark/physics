@@ -6,8 +6,8 @@ import (
 )
 
 type Rigidbody struct {
-	Id          int64
-	Position    vector.Vector
+	id          int64
+	position    vector.Vector
 	Velocity    vector.Vector
 	Shape       shape
 	inverseMass float64
@@ -20,9 +20,17 @@ type shape interface {
 
 func New() *Rigidbody {
 	r := Rigidbody{}
-	r.Id = core.Context.IdGenerator.Generate()
+	r.id = core.Context.IdGenerator.Generate()
 
 	return &r
+}
+
+func (r *Rigidbody) Id() int64 {
+	return r.id
+}
+
+func (r *Rigidbody) Position() vector.Vector {
+	return r.position
 }
 
 func (r *Rigidbody) Tick(delta float64) {
@@ -30,7 +38,7 @@ func (r *Rigidbody) Tick(delta float64) {
 		return
 	}
 
-	r.Position.AddScaledVector(r.Velocity, delta)
+	r.position.AddScaledVector(r.Velocity, delta)
 
 	acceleration := vector.Vector{}
 	acceleration.AddScaledVector(r.forceSum, r.inverseMass)

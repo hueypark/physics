@@ -37,8 +37,8 @@ class World {
     updatePosition(id, position) {
         let actor = this.actors.get(id)
 
-        actor.shape.position.x = position.X
-        actor.shape.position.y = position.Y
+        actor.shape.position.x = position.x
+        actor.shape.position.y = position.y
     }
 
     has(Id) {
@@ -49,8 +49,8 @@ class World {
 class Actor {
     constructor(id, position, shape) {
         this.Id = id
-        if (shape.Radius) {
-            let geometry = new THREE.CircleGeometry(shape.Radius, 32)
+        if (shape.type == "circle") {
+            let geometry = new THREE.CircleGeometry(shape.radius, 32)
             let material = new THREE.MeshBasicMaterial({color: 0x00ff00})
             this.shape = new THREE.Mesh(geometry, material)
         } else {
@@ -59,20 +59,26 @@ class Actor {
             this.shape = new THREE.Mesh(geometry, material)
         }
 
-        this.shape.position.x = position.X
-        this.shape.position.y = position.Y
+        this.shape.position.x = position.x
+        this.shape.position.y = position.y
     }
 }
 
 let world = new World()
 
 new Socket((name, json) => {
-    if (world.has(json.Id)) {
-        world.updatePosition(json.Id, json.Position)
-    } else {
-        let actor = new Actor(json.Id, json.Position, json.Shape)
-        world.add(actor)
+    switch (name) {
+        case "Actor":
+            console.log(json)
+            if (world.has(json.id)) {
+                world.updatePosition(json.id, json.position)
+            } else {
+                let actor = new Actor(json.id, json.position, json.shape)
+                world.add(actor)
+            }
+            break
+        default:
+            console.log(name)
+            break
     }
-
-    console.log(json)
 })
