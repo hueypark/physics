@@ -13,25 +13,38 @@ import (
 func main() {
 	s := server.New()
 	world := physics.New()
-	r := body.New()
-	r.SetMass(1)
-	r.SetShape(&shape.Circle{1})
-	world.Add(r)
 
 	delta := time.Second / 30
 	ticker := time.NewTicker(delta)
+	respawnTime := time.Duration(0)
 	go func() {
 		for range ticker.C {
+			const RESPAWN_TIME = time.Second * 5
+			respawnTime -= delta
+
+			if respawnTime < 0 {
+				respawnTime = RESPAWN_TIME
+				world.Add(createCircle())
+			}
+
 			world.Tick(delta.Seconds())
-			for _, object := range world.GetBodys() {
+			for _, body := range world.GetBodys() {
 				s.Broadcast(packet.Actor{
-					object.Id(),
-					packet.Vector{object.Position().X, object.Position().Y},
-					packet.Circle(5),
+					body.Id(),
+					packet.Vector{body.Position().X, body.Position().Y},
+					packet.Circle(body.Shape.(*shape.Circle).Radius),
 				})
 			}
 		}
 	}()
 
 	s.Start(":8080")
+}
+
+func createCircle() *body.Body {
+	b := body.New()
+	b.SetMass(1)
+	b.SetShape(&shape.Circle{10})
+
+	return b
 }
