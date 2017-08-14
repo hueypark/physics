@@ -2,27 +2,28 @@ package physics
 
 import (
 	"github.com/hueypark/physics/core/body"
-	"github.com/hueypark/physics/core/contact"
+	"github.com/hueypark/physics/core/manifold"
 	"github.com/hueypark/physics/core/vector"
 )
 
 type World struct {
-	bodys   map[int64]*body.Body
-	gravity vector.Vector
-}
-
-type source struct {
-	lhs, rhs *body.Body
+	bodys     map[int64]*body.Body
+	gravity   vector.Vector
+	manifolds []*mainfold.Manifold
 }
 
 func New() World {
-	return World{make(map[int64]*body.Body), vector.Vector{0.0, -100.0}}
+	return World{
+		bodys:   make(map[int64]*body.Body),
+		gravity: vector.Vector{0.0, -100.0}}
 }
 
 func (w *World) Tick(delta float64) {
-	sources := w.generateSources()
-
-	w.generateContacts(sources)
+	w.manifolds = w.broadPhase()
+	for _, c := range w.manifolds {
+		c.DetectCollision()
+		c.SolveCollision()
+	}
 
 	for _, b := range w.bodys {
 		b.AddForce(w.gravity)
@@ -38,12 +39,16 @@ func (w *World) SetGravity(gravity vector.Vector) {
 	w.gravity = gravity
 }
 
-func (w *World) GetBodys() map[int64]*body.Body {
+func (w *World) Bodys() map[int64]*body.Body {
 	return w.bodys
 }
 
-func (w *World) generateSources() []source {
-	sources := []source{}
+func (w *World) Manifolds() []*mainfold.Manifold {
+	return w.manifolds
+}
+
+func (w *World) broadPhase() []*mainfold.Manifold {
+	contacts := []*mainfold.Manifold{}
 
 	for _, lhs := range w.bodys {
 		for _, rhs := range w.bodys {
@@ -51,15 +56,9 @@ func (w *World) generateSources() []source {
 				continue
 			}
 
-			sources = append(sources, source{lhs, rhs})
+			contacts = append(contacts, mainfold.New(lhs, rhs))
 		}
 	}
-
-	return sources
-}
-
-func (w *World) generateContacts(sources []source) []contact.Contact {
-	contacts := []contact.Contact{}
 
 	return contacts
 }

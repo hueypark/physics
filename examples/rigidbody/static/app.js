@@ -44,19 +44,35 @@ class World {
     has(Id) {
         return this.actors.has(Id)
     }
+
+    debugLine(start, end) {
+        let geometry = new THREE.Geometry();
+        geometry.vertices.push(new THREE.Vector3(start.x, start.y, 0));
+        geometry.vertices.push(new THREE.Vector3(end.x, end.y, 0));
+        let material = new THREE.LineBasicMaterial({ color: 0x0000ff });
+
+        let line = new THREE.Line(geometry, material);
+        this.scene.add(line)
+
+        window.setTimeout(() => {
+            this.scene.remove(line)
+        }, 200)
+    }
 }
 
 class Actor {
     constructor(id, position, shape) {
         this.Id = id
-        if (shape.type == "circle") {
-            console.log(shape)
-            let geometry = new THREE.CircleGeometry(shape.radius, 32)
+        if (shape.type === "circle") {
+            let geometry = new THREE.RingGeometry(shape.radius - 0.1, shape.radius, 32)
+            // let geometry = new THREE.CircleGeometry(shape.radius, 32)
             let material = new THREE.MeshBasicMaterial({color: 0x00ff00})
+            material.wireframe = true
             this.shape = new THREE.Mesh(geometry, material)
         } else {
             let geometry = new THREE.BoxGeometry(10, 10, 10)
             let material = new THREE.MeshBasicMaterial({color: 0x00ff00})
+            material.wireframe = true
             this.shape = new THREE.Mesh(geometry, material)
         }
 
@@ -76,6 +92,9 @@ new Socket((name, json) => {
                 let actor = new Actor(json.id, json.position, json.shape)
                 world.add(actor)
             }
+            break
+        case "DebugLine":
+            world.debugLine(json.start, json.end)
             break
         default:
             console.log(name)

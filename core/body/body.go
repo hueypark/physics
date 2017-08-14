@@ -33,6 +33,10 @@ func (r *Body) Position() vector.Vector {
 	return r.position
 }
 
+func (r *Body) SetPosition(position vector.Vector) {
+	r.position = position
+}
+
 func (r *Body) Tick(delta float64) {
 	if r.inverseMass <= 0.0 {
 		return
@@ -52,10 +56,22 @@ func (r *Body) SetMass(mass float64) {
 	r.inverseMass = 1.0 / mass
 }
 
+func (r *Body) InverseMass() float64 {
+	return r.inverseMass
+}
+
+func (r *Body) SetStatic() {
+	r.inverseMass = 0
+}
+
 func (r *Body) SetShape(s shape) {
 	r.Shape = s
 }
 
 func (r *Body) AddForce(force vector.Vector) {
 	r.forceSum.Add(force)
+}
+
+func (r *Body) AddImpluse(impulse vector.Vector) {
+	r.Velocity.AddScaledVector(impulse, r.inverseMass)
 }

@@ -33,9 +33,17 @@ func (v *Vector) Multiply(val float64) {
 	v.Y *= val
 }
 
+func Multiply(v Vector, val float64) Vector {
+	return Vector{v.X * val, v.Y * val}
+}
+
 func (v *Vector) Add(o Vector) {
 	v.X += o.X
 	v.Y += o.Y
+}
+
+func Add(lhs, rhs Vector) Vector {
+	return Vector{lhs.X + rhs.X, lhs.Y + rhs.Y}
 }
 
 func (v *Vector) AddScaledVector(o Vector, scale float64) {
@@ -46,6 +54,10 @@ func (v *Vector) AddScaledVector(o Vector, scale float64) {
 func (v *Vector) Subtract(o Vector) {
 	v.X -= o.X
 	v.Y -= o.Y
+}
+
+func Subtract(lhs, rhs Vector) Vector {
+	return Vector{lhs.X - rhs.X, lhs.Y - rhs.Y}
 }
 
 func (v *Vector) Clear() {
@@ -59,4 +71,12 @@ func Product(lhs, rhs Vector) Vector {
 
 func Dot(lhs, rhs Vector) float64 {
 	return (lhs.X * rhs.X) + (lhs.Y * rhs.Y)
+}
+
+func (v *Vector) Size() float64 {
+	return math.Sqrt(v.X*v.X + v.Y*v.Y)
+}
+
+func (v *Vector) SizeSquared() float64 {
+	return v.X*v.X + v.Y*v.Y
 }
