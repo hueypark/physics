@@ -2,14 +2,14 @@ package physics
 
 import (
 	"github.com/hueypark/physics/core/body"
-	"github.com/hueypark/physics/core/manifold"
+	"github.com/hueypark/physics/core/contact"
 	"github.com/hueypark/physics/core/vector"
 )
 
 type World struct {
-	bodys     map[int64]*body.Body
-	gravity   vector.Vector
-	manifolds []*mainfold.Manifold
+	bodys    map[int64]*body.Body
+	gravity  vector.Vector
+	contscts []*contact.Contact
 }
 
 func New() World {
@@ -19,8 +19,8 @@ func New() World {
 }
 
 func (w *World) Tick(delta float64) {
-	w.manifolds = w.broadPhase()
-	for _, c := range w.manifolds {
+	w.contscts = w.broadPhase()
+	for _, c := range w.contscts {
 		c.DetectCollision()
 		c.SolveCollision()
 	}
@@ -43,12 +43,12 @@ func (w *World) Bodys() map[int64]*body.Body {
 	return w.bodys
 }
 
-func (w *World) Manifolds() []*mainfold.Manifold {
-	return w.manifolds
+func (w *World) Manifolds() []*contact.Contact {
+	return w.contscts
 }
 
-func (w *World) broadPhase() []*mainfold.Manifold {
-	contacts := []*mainfold.Manifold{}
+func (w *World) broadPhase() []*contact.Contact {
+	contacts := []*contact.Contact{}
 
 	for _, lhs := range w.bodys {
 		for _, rhs := range w.bodys {
@@ -56,7 +56,7 @@ func (w *World) broadPhase() []*mainfold.Manifold {
 				continue
 			}
 
-			contacts = append(contacts, mainfold.New(lhs, rhs))
+			contacts = append(contacts, contact.New(lhs, rhs))
 		}
 	}
 
