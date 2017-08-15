@@ -65,7 +65,6 @@ class Actor {
         this.Id = id
         if (shape.type === "circle") {
             let geometry = new THREE.RingGeometry(shape.radius - 0.1, shape.radius, 32)
-            // let geometry = new THREE.CircleGeometry(shape.radius, 32)
             let material = new THREE.MeshBasicMaterial({color: 0x00ff00})
             material.wireframe = true
             this.shape = new THREE.Mesh(geometry, material)
