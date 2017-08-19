@@ -1,10 +1,7 @@
 package contact
 
 import (
-	"math"
-
 	"github.com/hueypark/physics/core/body"
-	"github.com/hueypark/physics/core/shape"
 	"github.com/hueypark/physics/core/vector"
 )
 
@@ -20,26 +17,6 @@ type Contact struct {
 
 func New(lhs, rhs *body.Body) *Contact {
 	return &Contact{lhs: lhs, rhs: rhs}
-}
-
-func (c *Contact) DetectCollision() {
-	lhsCircle := c.lhs.Shape.(*shape.Circle)
-	rhsCircle := c.rhs.Shape.(*shape.Circle)
-
-	c.normal = vector.Subtract(c.rhs.Position(), c.lhs.Position())
-
-	distanceSquared := c.normal.SizeSquared()
-	radius := lhsCircle.Radius + rhsCircle.Radius
-
-	if distanceSquared >= radius*radius {
-		return
-	}
-
-	distance := math.Sqrt(distanceSquared)
-
-	c.penetration = radius - distance
-	c.normal.Normalize()
-	c.points = append(c.points, vector.Add(vector.Multiply(c.normal, lhsCircle.Radius), c.lhs.Position()))
 }
 
 func (c *Contact) SolveCollision() {

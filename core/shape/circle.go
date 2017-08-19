@@ -5,5 +5,5 @@ type Circle struct {
 }
 
 func (c *Circle) Type() int64 {
-	return SHAPE_CIRCLE
+	return CIRCLE
 }
