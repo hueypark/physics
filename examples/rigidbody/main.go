@@ -15,16 +15,17 @@ import (
 	"github.com/hueypark/physics/core/vector"
 )
 
+const WINDOW_WIDTH = 1024
+const WINDOW_HEIGHT = 768
+
 func main() {
 	pixelgl.Run(run)
 }
 
 func run() {
-	const WIDTH = 1024
-	const HEIGHT = 768
 	cfg := pixelgl.WindowConfig{
 		Title:  "Rigidbody",
-		Bounds: pixel.R(-WIDTH/2, -HEIGHT/2, WIDTH/2, HEIGHT/2),
+		Bounds: pixel.R(-WINDOW_WIDTH/2, -WINDOW_HEIGHT/2, WINDOW_WIDTH/2, WINDOW_HEIGHT/2),
 		VSync:  true,
 	}
 	win, err := pixelgl.NewWindow(cfg)
@@ -60,6 +61,10 @@ func run() {
 		imd.Clear()
 
 		for _, b := range world.Bodys() {
+			if isOutbound(b.Position()) {
+				world.ReservedDelete(b.Id())
+			}
+
 			if b.Shape.Type() == shape.CIRCLE {
 				circle := b.Shape.(*shape.Circle)
 				drawCircle(imd, b.Position(), circle.Radius)
@@ -100,4 +105,16 @@ func drawDebugLine(imd *imdraw.IMDraw, start, end vector.Vector) {
 	imd.Color = colornames.Limegreen
 	imd.Push(pixel.V(start.X, start.Y), pixel.V(end.X, end.Y))
 	imd.Line(1)
+}
+
+func isOutbound(position vector.Vector) bool {
+	const MARGIN = 300
+	if position.X < -WINDOW_WIDTH/2-MARGIN ||
+		position.X > WINDOW_WIDTH/2+MARGIN ||
+		position.Y < -WINDOW_HEIGHT/2-MARGIN ||
+		position.Y > WINDOW_HEIGHT/2+MARGIN {
+		//fmt.Println("OUT")
+		return true
+	}
+	return false
 }

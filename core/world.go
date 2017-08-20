@@ -7,9 +7,10 @@ import (
 )
 
 type World struct {
-	bodys    map[int64]*body.Body
-	gravity  vector.Vector
-	contscts []*contact.Contact
+	bodys                 map[int64]*body.Body
+	gravity               vector.Vector
+	contscts              []*contact.Contact
+	reservedDeleteBodyIds []int64
 }
 
 func New() World {
@@ -19,6 +20,8 @@ func New() World {
 }
 
 func (w *World) Tick(delta float64) {
+	w.deleteReserveDeleteBodys()
+
 	w.contscts = w.broadPhase()
 	for _, c := range w.contscts {
 		c.DetectCollision()
@@ -33,6 +36,10 @@ func (w *World) Tick(delta float64) {
 
 func (w *World) Add(body *body.Body) {
 	w.bodys[Context.IdGenerator.Generate()] = body
+}
+
+func (w *World) ReservedDelete(id int64) {
+	w.reservedDeleteBodyIds = append(w.reservedDeleteBodyIds, id)
 }
 
 func (w *World) SetGravity(gravity vector.Vector) {
@@ -61,4 +68,12 @@ func (w *World) broadPhase() []*contact.Contact {
 	}
 
 	return contacts
+}
+
+func (w *World) deleteReserveDeleteBodys() {
+	for _, id := range w.reservedDeleteBodyIds {
+		delete(w.bodys, id)
+	}
+
+	w.reservedDeleteBodyIds = []int64{}
 }
