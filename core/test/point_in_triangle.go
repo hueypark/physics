@@ -5,15 +5,15 @@ import (
 )
 
 func PointInTriangle(p, a, b, c vector.Vector) bool {
-	if vector.Cross(vector.Subtract(p, a), vector.Subtract(b, a)) < 0 {
+	if vector.Subtract(p, a).OnTheRight(vector.Subtract(b, a)) == false {
 		return false
 	}
 
-	if vector.Cross(vector.Subtract(p, b), vector.Subtract(c, b)) < 0 {
+	if vector.Subtract(p, b).OnTheRight(vector.Subtract(c, b)) == false {
 		return false
 	}
 
-	if vector.Cross(vector.Subtract(p, c), vector.Subtract(a, c)) < 0 {
+	if vector.Subtract(p, c).OnTheRight(vector.Subtract(a, c)) == false {
 		return false
 	}
 

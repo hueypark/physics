@@ -40,3 +40,12 @@ func TestDot(t *testing.T) {
 
 	a.Equal(dot, 14.0)
 }
+
+func TestOnRight(t *testing.T) {
+	a := assert.New(t)
+
+	v1 := Vector{0,1}
+	v2 := Vector{1,1}
+
+	a.True(v1.OnTheRight(v2))
+}
