@@ -12,6 +12,7 @@ import (
 	"github.com/hueypark/physics/core/vector"
 	"github.com/hueypark/physics/core/body"
 	"github.com/hueypark/physics/core/shape"
+	"github.com/hueypark/physics/core/shape/convex"
 )
 
 const WINDOW_WIDTH = 1024
@@ -36,7 +37,7 @@ func run() {
 	world := physics.New()
 	b := body.New()
 	b.SetStatic()
-	b.SetShape(shape.NewConvex([]vector.Vector{{-50,-50},{50,-50},{50,50},{-50, 50}}))
+	b.SetShape(convex.New([]vector.Vector{{-50,-50},{50,-50},{50,50},{-50, 50}}))
 	b.SetPosition(vector.Vector{50, 50})
 	world.Add(b)
 
@@ -52,7 +53,7 @@ func run() {
 
 		for _, b := range world.Bodys() {
 			if b.Shape.Type() == shape.CONVEX {
-				convex := b.Shape.(*shape.Convex)
+				convex := b.Shape.(*convex.Convex)
 				drawConvex(imd, b.Position(), convex.Vertices)
 			}
 		}
