@@ -8,7 +8,7 @@ import (
 	"github.com/hueypark/physics/core/vector"
 )
 
-func TestNewConvex(t *testing.T) {
+func TestPointInTriangle(t *testing.T) {
 	a := assert.New(t)
 
 	triangleVertexA := vector.Vector{0, 0}
