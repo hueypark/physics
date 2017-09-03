@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/hueypark/physics/core/shape"
+	"github.com/hueypark/physics/core/shape/circle"
 	"github.com/hueypark/physics/core/vector"
 )
 
@@ -12,11 +13,11 @@ func (c *Contact) DetectCollision() {
 	rhsType := c.rhs.Shape.Type()
 
 	if lhsType == shape.CIRCLE && rhsType == shape.CIRCLE {
-		c.circleToCircle(c.lhs.Shape.(*shape.Circle), c.rhs.Shape.(*shape.Circle))
+		c.circleToCircle(c.lhs.Shape.(*circle.Circle), c.rhs.Shape.(*circle.Circle))
 	}
 }
 
-func (c *Contact) circleToCircle(lhsCircle, rhsCircle *shape.Circle) {
+func (c *Contact) circleToCircle(lhsCircle, rhsCircle *circle.Circle) {
 	c.normal = vector.Subtract(c.rhs.Position(), c.lhs.Position())
 
 	distanceSquared := c.normal.SizeSquared()

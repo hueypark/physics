@@ -12,6 +12,7 @@ import (
 	"github.com/hueypark/physics/core"
 	"github.com/hueypark/physics/core/body"
 	"github.com/hueypark/physics/core/shape"
+	"github.com/hueypark/physics/core/shape/circle"
 	"github.com/hueypark/physics/core/vector"
 )
 
@@ -66,7 +67,7 @@ func run() {
 			}
 
 			if b.Shape.Type() == shape.CIRCLE {
-				circle := b.Shape.(*shape.Circle)
+				circle := b.Shape.(*circle.Circle)
 				drawCircle(imd, b.Position(), circle.Radius)
 			}
 		}
@@ -88,7 +89,7 @@ func run() {
 func createCircle(radius float64, position vector.Vector, velocity vector.Vector) *body.Body {
 	b := body.New()
 	b.SetMass(1)
-	b.SetShape(&shape.Circle{radius})
+	b.SetShape(&circle.Circle{radius})
 	b.SetPosition(position)
 	b.Velocity = velocity
 
