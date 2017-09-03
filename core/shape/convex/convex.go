@@ -31,6 +31,21 @@ func (c *Convex) Hull() []vector.Vector {
 	return c.hull
 }
 
+func MinkowskiDifference(a Convex, posA vector.Vector, b Convex, posB vector.Vector) *Convex {
+	vertices := []vector.Vector{}
+
+
+	for _, vertexA := range a.Hull() {
+		for _, vertexB := range b.Hull() {
+			worldA := vector.Add(vertexA, posA)
+			worldB := vector.Subtract(vector.Vector{}, vector.Add(vertexB, posB))
+			vertices = append(vertices, vector.Add(worldA, worldB))
+		}
+	}
+
+	return New(vertices)
+}
+
 func (c *Convex) quickHull(points []vector.Vector, start, end vector.Vector) []vector.Vector {
 	pointDistanceIndicators := c.getLhsPointDistanceIndicatorMap(points, start, end)
 	if len(pointDistanceIndicators) == 0 {
