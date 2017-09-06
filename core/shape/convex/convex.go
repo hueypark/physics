@@ -22,10 +22,11 @@ func (c *Convex) Type() int64 {
 	return shape.CONVEX
 }
 
+// Hull is ccw
 func (c *Convex) Hull() []vector.Vector {
 	if c.hull == nil {
 		minX, maxX := c.getExtremePoints()
-		c.hull = append(c.quickHull(c.vertices, minX, maxX), c.quickHull(c.vertices, maxX, minX)...)
+		c.hull = append(c.quickHull(c.vertices, maxX, minX), c.quickHull(c.vertices, minX, maxX)...)
 	}
 
 	return c.hull
@@ -60,8 +61,8 @@ func (c *Convex) quickHull(points []vector.Vector, start, end vector.Vector) []v
 	}
 
 	return append(
-		c.quickHull(newPoints, start, farthestPoint),
-		c.quickHull(newPoints, farthestPoint, end)...)
+		c.quickHull(newPoints, farthestPoint, end),
+		c.quickHull(newPoints, start, farthestPoint)...)
 }
 
 func (c *Convex) getExtremePoints() (minX, maxX vector.Vector) {

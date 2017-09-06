@@ -4,6 +4,7 @@ import (
 	"github.com/hueypark/physics/core/vector"
 )
 
+// Triangles a, b, and c must be ccw
 func PointInTriangle(p, a, b, c vector.Vector) bool {
 	if vector.Subtract(p, a).OnTheRight(vector.Subtract(b, a)) == false {
 		return false
