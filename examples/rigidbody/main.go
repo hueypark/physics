@@ -12,6 +12,7 @@ import (
 	"github.com/hueypark/physics/core"
 	"github.com/hueypark/physics/core/body"
 	"github.com/hueypark/physics/core/shape"
+	"github.com/hueypark/physics/core/shape/bullet"
 	"github.com/hueypark/physics/core/shape/circle"
 	"github.com/hueypark/physics/core/vector"
 )
@@ -53,7 +54,7 @@ func run() {
 
 		if respawnTime < 0 {
 			respawnTime = RESPAWN_TIME
-			world.Add(createCircle(random.FRandom(5, 20), vector.Vector{random.FRandom(-300, 300), 0}, vector.Vector{0, random.FRandom(100, 300)}))
+			world.Add(createRandomShape(vector.Vector{random.FRandom(-300, 300), 0}, vector.Vector{0, random.FRandom(100, 300)}))
 		}
 
 		world.Tick(delta.Seconds())
@@ -66,9 +67,12 @@ func run() {
 				world.ReservedDelete(b.Id())
 			}
 
-			if b.Shape.Type() == shape.CIRCLE {
-				circle := b.Shape.(*circle.Circle)
-				drawCircle(imd, b.Position(), circle.Radius)
+			switch b.Shape.Type() {
+			case shape.BULLET:
+				drawCircle(imd, b.Position(), 1)
+			case shape.CIRCLE:
+				c := b.Shape.(*circle.Circle)
+				drawCircle(imd, b.Position(), c.Radius)
 			}
 		}
 
@@ -84,6 +88,27 @@ func run() {
 
 		win.Update()
 	}
+}
+
+func createRandomShape(position vector.Vector, velocity vector.Vector) *body.Body {
+	switch random.Random(0, 1) {
+	case 0:
+		return createBullet(position, velocity)
+	case 1:
+		return createCircle(random.FRandom(5, 20), position, velocity)
+	default:
+		return createCircle(random.FRandom(5, 20), position, velocity)
+	}
+}
+
+func createBullet(position vector.Vector, velocity vector.Vector) *body.Body {
+	b := body.New()
+	b.SetMass(1)
+	b.SetShape(bullet.New())
+	b.SetPosition(position)
+	b.Velocity = velocity
+
+	return b
 }
 
 func createCircle(radius float64, position vector.Vector, velocity vector.Vector) *body.Body {

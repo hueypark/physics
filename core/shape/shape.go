@@ -1,6 +1,7 @@
 package shape
 
 const (
-	CIRCLE = iota
+	BULLET = iota
+	CIRCLE
 	CONVEX
 )
