@@ -17,3 +17,26 @@ func TestNewConvex(t *testing.T) {
 
 	a.Equal(hull, c.Hull())
 }
+
+func TestEdge(t *testing.T) {
+	a := assert.New(t)
+
+	vertices := []vector.Vector{
+		{0, 0},
+		{100, 0},
+		{0, 100},
+		{100, 100}}
+
+	c := New(vertices)
+
+	edges := c.Edges()
+	for i, edge := range edges {
+		nextIndex := i + 1
+		if len(edges) <= nextIndex {
+			nextIndex = 0
+		}
+
+		nextEdge := edges[nextIndex]
+		a.True(vector.Subtract(nextEdge.End, nextEdge.Start).OnTheRight(vector.Subtract(edge.End, edge.Start)))
+	}
+}

@@ -10,10 +10,16 @@ import (
 type Convex struct {
 	vertices []vector.Vector
 	hull     []vector.Vector
+	edges    []Edge
+}
+
+type Edge struct {
+	Start vector.Vector
+	End   vector.Vector
 }
 
 func New(vertices []vector.Vector) *Convex {
-	c := Convex{vertices, nil}
+	c := Convex{vertices, nil, nil}
 
 	return &c
 }
@@ -32,9 +38,24 @@ func (c *Convex) Hull() []vector.Vector {
 	return c.hull
 }
 
+// Edge is ccw
+func (c *Convex) Edges() []Edge {
+	if c.edges == nil {
+		hull := c.Hull()
+		for i, vertex := range hull {
+			nextIndex := i + 1
+			if len(hull) <= nextIndex {
+				nextIndex = 0
+			}
+			c.edges = append(c.edges, Edge{vertex, hull[nextIndex]})
+		}
+	}
+
+	return c.edges
+}
+
 func MinkowskiDifference(a Convex, posA vector.Vector, b Convex, posB vector.Vector) *Convex {
 	vertices := []vector.Vector{}
-
 
 	for _, vertexA := range a.Hull() {
 		for _, vertexB := range b.Hull() {

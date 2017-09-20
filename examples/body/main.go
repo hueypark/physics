@@ -14,6 +14,7 @@ import (
 	"github.com/hueypark/physics/core/shape"
 	"github.com/hueypark/physics/core/shape/bullet"
 	"github.com/hueypark/physics/core/shape/circle"
+	"github.com/hueypark/physics/core/shape/convex"
 	"github.com/hueypark/physics/core/vector"
 )
 
@@ -37,7 +38,15 @@ func run() {
 	imd := imdraw.New(nil)
 
 	world := physics.New()
-	plane := createCircle(100, vector.Vector{0, -200}, vector.Vector{})
+	plane := createConvex(
+		[]vector.Vector{
+			{300, -100},
+			{300, -120},
+			{-300, -100},
+			{-300, -120},
+		},
+		vector.Vector{0, -200},
+		vector.Vector{})
 	plane.SetStatic()
 	world.Add(plane)
 
@@ -73,6 +82,9 @@ func run() {
 			case shape.CIRCLE:
 				c := b.Shape.(*circle.Circle)
 				drawCircle(imd, b.Position(), c.Radius)
+			case shape.CONVEX:
+				c := b.Shape.(*convex.Convex)
+				drawConvex(imd, b.Position(), c.Hull())
 			}
 		}
 
@@ -91,14 +103,29 @@ func run() {
 }
 
 func createRandomShape(position vector.Vector, velocity vector.Vector) *body.Body {
+	var b *body.Body
 	switch random.Random(0, 1) {
 	case 0:
-		return createBullet(position, velocity)
+		b = createBullet(position, velocity)
 	case 1:
-		return createCircle(random.FRandom(5, 20), position, velocity)
-	default:
-		return createCircle(random.FRandom(5, 20), position, velocity)
+		b = createConvex(
+			[]vector.Vector{
+				{random.FRandom(-30, 30), random.FRandom(-30, 30)},
+				{random.FRandom(-30, 30), random.FRandom(-30, 30)},
+				{random.FRandom(-30, 30), random.FRandom(-30, 30)},
+				{random.FRandom(-30, 30), random.FRandom(-30, 30)},
+				{random.FRandom(-30, 30), random.FRandom(-30, 30)},
+				{random.FRandom(-30, 30), random.FRandom(-30, 30)},
+				{random.FRandom(-30, 30), random.FRandom(-30, 30)},
+				{random.FRandom(-30, 30), random.FRandom(-30, 30)},
+				{random.FRandom(-30, 30), random.FRandom(-30, 30)},
+				{random.FRandom(-30, 30), random.FRandom(-30, 30)},
+			},
+			position,
+			velocity)
 	}
+
+	return b
 }
 
 func createBullet(position vector.Vector, velocity vector.Vector) *body.Body {
@@ -121,10 +148,31 @@ func createCircle(radius float64, position vector.Vector, velocity vector.Vector
 	return b
 }
 
+func createConvex(vertices []vector.Vector, position vector.Vector, velocity vector.Vector) *body.Body {
+	b := body.New()
+	b.SetMass(1)
+	b.SetShape(convex.New(vertices))
+	b.SetPosition(position)
+	b.Velocity = velocity
+
+	return b
+}
+
 func drawCircle(imd *imdraw.IMDraw, position vector.Vector, radius float64) {
 	imd.Color = colornames.Limegreen
 	imd.Push(pixel.V(position.X, position.Y))
 	imd.Circle(radius, 1)
+}
+
+func drawConvex(imd *imdraw.IMDraw, position vector.Vector, vertices []vector.Vector) {
+	for _, vertex := range vertices {
+		worldPosition := vector.Add(position, vertex)
+		imd.Push(pixel.V(worldPosition.X, worldPosition.Y))
+	}
+
+	first := vector.Add(position, vertices[0])
+	imd.Push(pixel.V(first.X, first.Y))
+	imd.Line(1)
 }
 
 func drawDebugLine(imd *imdraw.IMDraw, start, end vector.Vector) {
@@ -139,7 +187,6 @@ func isOutbound(position vector.Vector) bool {
 		position.X > WINDOW_WIDTH/2+MARGIN ||
 		position.Y < -WINDOW_HEIGHT/2-MARGIN ||
 		position.Y > WINDOW_HEIGHT/2+MARGIN {
-		//fmt.Println("OUT")
 		return true
 	}
 	return false

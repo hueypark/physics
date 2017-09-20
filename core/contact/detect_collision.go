@@ -3,6 +3,7 @@ package contact
 import (
 	"math"
 
+	"github.com/hueypark/physics/core/body"
 	"github.com/hueypark/physics/core/shape"
 	"github.com/hueypark/physics/core/shape/circle"
 	"github.com/hueypark/physics/core/shape/convex"
@@ -22,7 +23,7 @@ func (c *Contact) DetectCollision() {
 			c.bulletToCircle(c.rhs.Shape.(*circle.Circle))
 			break
 		case shape.CONVEX:
-			c.bulletToConvex(c.rhs.Shape.(*convex.Convex))
+			c.normal, c.penetration, c.points = bulletToConvex(c.lhs, c.rhs)
 			break
 		}
 		break
@@ -42,7 +43,7 @@ func (c *Contact) DetectCollision() {
 	case shape.CONVEX:
 		switch rhsType {
 		case shape.BULLET:
-			c.convexToBullet(c.lhs.Shape.(*convex.Convex))
+			c.normal, c.penetration, c.points = convexToBullet(c.lhs, c.rhs)
 		case shape.CIRCLE:
 			c.convexToCircle(c.lhs.Shape.(*convex.Convex), c.rhs.Shape.(*circle.Circle))
 			break
@@ -86,10 +87,46 @@ func (c *Contact) circleToBullet(lhs *circle.Circle) {
 	c.points = append(c.points, c.lhs.Position())
 }
 
-func (c *Contact) bulletToConvex(rhs *convex.Convex) {
+func bulletToConvex(lhs, rhs *body.Body) (normal vector.Vector, penetration float64, points []vector.Vector) {
+	rhsConvex := rhs.Shape.(*convex.Convex)
+
+	penetration = math.MaxFloat64
+
+	for _, edge := range rhsConvex.Edges() {
+		worldStart := vector.Add(rhs.Position(), edge.Start)
+		worldEnd := vector.Add(rhs.Position(), edge.End)
+		edgeVector := vector.Subtract(worldEnd, worldStart)
+		pointVector := vector.Subtract(lhs.Position(), worldStart)
+
+		if !pointVector.OnTheRight(edgeVector) {
+			normal = vector.Vector{}
+			penetration = 0
+			return normal, penetration, points
+		}
+
+		perpendicular := vector.Vector{-edgeVector.Y, edgeVector.X}
+		perpendicular.Normalize()
+
+		lhsVector := vector.Subtract(lhs.Position(), worldStart)
+
+		proj := vector.Multiply(perpendicular, vector.Dot(lhsVector, perpendicular))
+
+		if proj.Size() < penetration {
+			normal = perpendicular
+			penetration = proj.Size()
+		}
+	}
+
+	points = append(points, lhs.Position())
+	return normal, penetration, points
 }
 
-func (c *Contact) convexToBullet(lhs *convex.Convex) {
+func convexToBullet(lhs, rhs *body.Body) (normal vector.Vector, penetration float64, points []vector.Vector) {
+	normal, penetration, points = bulletToConvex(rhs, lhs)
+
+	normal = vector.Vector{-normal.X, -normal.Y}
+
+	return normal, penetration, points
 }
 
 func (c *Contact) circleToCircle(lhsCircle, rhsCircle *circle.Circle) {
