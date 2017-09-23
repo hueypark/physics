@@ -7,6 +7,10 @@ type Vector struct {
 	Y float64
 }
 
+func ZERO() Vector {
+	return Vector{0, 0}
+}
+
 func (v *Vector) Invert() {
 	v.X = -v.X
 	v.Y = -v.Y

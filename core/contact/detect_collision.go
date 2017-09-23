@@ -49,7 +49,7 @@ func (c *Contact) DetectCollision() {
 			c.convexToCircle(c.lhs.Shape.(*convex.Convex), c.rhs.Shape.(*circle.Circle))
 			break
 		case shape.CONVEX:
-			c.convexToConvex(c.lhs.Shape.(*convex.Convex), c.rhs.Shape.(*convex.Convex))
+			c.normal, c.penetration, c.points = convexToConvex(c.lhs, c.rhs)
 			break
 		}
 		break
@@ -151,6 +151,50 @@ func (c *Contact) convexToCircle(lhs *convex.Convex, rhs *circle.Circle) {
 
 }
 
-func (c *Contact) convexToConvex(lhs, rhs *convex.Convex) {
+func convexToConvex(lhs, rhs *body.Body) (normal vector.Vector, penetration float64, points []vector.Vector) {
+	lhsConvex := lhs.Shape.(*convex.Convex)
+	rhsConvex := rhs.Shape.(*convex.Convex)
 
+	minkowskiDifference := convex.MinkowskiDifference(*rhsConvex, rhs.Position(), *lhsConvex, lhs.Position())
+
+	penetration = math.MaxFloat64
+
+	for _, edge := range minkowskiDifference.Edges() {
+		edgeVector := vector.Subtract(edge.End, edge.Start)
+		pointVector := vector.Subtract(vector.ZERO(), edge.Start)
+
+		if !pointVector.OnTheRight(edgeVector) {
+			normal = vector.Vector{}
+			penetration = 0
+			return normal, penetration, points
+		}
+
+		perpendicular := vector.Vector{-edgeVector.Y, edgeVector.X}
+		perpendicular.Normalize()
+
+		lhsVector := vector.Subtract(vector.Vector{}, edge.Start)
+
+		proj := vector.Multiply(perpendicular, vector.Dot(lhsVector, perpendicular))
+
+		if proj.Size() < penetration {
+			normal = perpendicular
+			penetration = proj.Size()
+		}
+	}
+
+	for _, point := range lhsConvex.Hull() {
+		worldPoint := vector.Add(lhs.Position(), point)
+		if rhsConvex.InHull(rhs.Position(), worldPoint) {
+			points = append(points, worldPoint)
+		}
+	}
+
+	for _, point := range rhsConvex.Hull() {
+		worldPoint := vector.Add(rhs.Position(), point)
+		if lhsConvex.InHull(lhs.Position(), worldPoint) {
+			points = append(points, worldPoint)
+		}
+	}
+
+	return normal, penetration, points
 }
