@@ -159,7 +159,6 @@ func createConvex(vertices []vector.Vector, position vector.Vector, velocity vec
 }
 
 func drawCircle(imd *imdraw.IMDraw, position vector.Vector, radius float64) {
-	imd.Color = colornames.Limegreen
 	imd.Push(pixel.V(position.X, position.Y))
 	imd.Circle(radius, 1)
 }
@@ -176,7 +175,6 @@ func drawConvex(imd *imdraw.IMDraw, position vector.Vector, vertices []vector.Ve
 }
 
 func drawDebugLine(imd *imdraw.IMDraw, start, end vector.Vector) {
-	imd.Color = colornames.Limegreen
 	imd.Push(pixel.V(start.X, start.Y), pixel.V(end.X, end.Y))
 	imd.Line(1)
 }
