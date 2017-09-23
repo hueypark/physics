@@ -40,3 +40,18 @@ func TestEdge(t *testing.T) {
 		a.True(vector.Subtract(nextEdge.End, nextEdge.Start).OnTheRight(vector.Subtract(edge.End, edge.Start)))
 	}
 }
+
+func TestInHull(t *testing.T) {
+	a := assert.New(t)
+
+	vertices := []vector.Vector{
+		{0, 0},
+		{100, 0},
+		{0, 100},
+		{100, 100}}
+
+	c := New(vertices)
+
+	a.True(c.InHull(vector.Vector{50, 50}))
+	a.False(c.InHull(vector.Vector{50, -50}))
+}

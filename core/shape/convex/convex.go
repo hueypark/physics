@@ -86,6 +86,16 @@ func (c *Convex) quickHull(points []vector.Vector, start, end vector.Vector) []v
 		c.quickHull(newPoints, start, farthestPoint)...)
 }
 
+func (c *Convex) InHull(point vector.Vector) bool {
+	for _, edge := range c.Edges() {
+		if vector.Subtract(point, edge.Start).OnTheRight(vector.Subtract(edge.End, edge.Start)) == false {
+			return false
+		}
+	}
+
+	return true
+}
+
 func (c *Convex) getExtremePoints() (minX, maxX vector.Vector) {
 	minX = vector.Vector{math.MaxFloat64, 0}
 	maxX = vector.Vector{-math.MaxFloat64, 0}
