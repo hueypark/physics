@@ -52,6 +52,6 @@ func TestInHull(t *testing.T) {
 
 	c := New(vertices)
 
-	a.True(c.InHull(vector.Vector{50, 50}))
-	a.False(c.InHull(vector.Vector{50, -50}))
+	a.True(c.InHull(vector.ZERO(), vector.Vector{50, 50}))
+	a.False(c.InHull(vector.ZERO(), vector.Vector{50, -50}))
 }

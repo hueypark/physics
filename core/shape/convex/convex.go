@@ -86,9 +86,9 @@ func (c *Convex) quickHull(points []vector.Vector, start, end vector.Vector) []v
 		c.quickHull(newPoints, start, farthestPoint)...)
 }
 
-func (c *Convex) InHull(point vector.Vector) bool {
+func (c *Convex) InHull(position, point vector.Vector) bool {
 	for _, edge := range c.Edges() {
-		if vector.Subtract(point, edge.Start).OnTheRight(vector.Subtract(edge.End, edge.Start)) == false {
+		if vector.Subtract(point, vector.Add(position, edge.Start)).OnTheRight(vector.Subtract(vector.Add(position, edge.End), vector.Add(position, edge.Start))) == false {
 			return false
 		}
 	}
