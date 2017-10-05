@@ -36,7 +36,7 @@ func (c *Contact) DetectCollision() {
 			c.circleToCircle(c.lhs.Shape.(*circle.Circle), c.rhs.Shape.(*circle.Circle))
 			break
 		case shape.CONVEX:
-			c.circleToConvex(c.lhs.Shape.(*circle.Circle), c.rhs.Shape.(*convex.Convex))
+			c.normal, c.penetration, c.points = circleToConvex(c.lhs, c.rhs)
 			break
 		}
 		break
@@ -46,7 +46,8 @@ func (c *Contact) DetectCollision() {
 			c.swap()
 			c.normal, c.penetration, c.points = bulletToConvex(c.lhs, c.rhs)
 		case shape.CIRCLE:
-			c.convexToCircle(c.lhs.Shape.(*convex.Convex), c.rhs.Shape.(*circle.Circle))
+			c.swap()
+			c.normal, c.penetration, c.points = circleToConvex(c.lhs, c.rhs)
 			break
 		case shape.CONVEX:
 			c.normal, c.penetration, c.points = convexToConvex(c.lhs, c.rhs)
@@ -143,12 +144,51 @@ func (c *Contact) circleToCircle(lhsCircle, rhsCircle *circle.Circle) {
 	c.points = append(c.points, vector.Add(vector.Multiply(c.normal, lhsCircle.Radius), c.lhs.Position()))
 }
 
-func (c *Contact) circleToConvex(lhs *circle.Circle, rhs *convex.Convex) {
+func circleToConvex(lhs, rhs *body.Body) (normal vector.Vector, penetration float64, points []vector.Vector) {
+	lhsCircle := lhs.Shape.(*circle.Circle)
+	rhsConvex := rhs.Shape.(*convex.Convex)
 
-}
+	penetration = math.MaxFloat64
+	var selectedEdge convex.Edge
 
-func (c *Contact) convexToCircle(lhs *convex.Convex, rhs *circle.Circle) {
+	for _, edge := range rhsConvex.Edges() {
+		worldStart := vector.Add(rhs.Position(), edge.Start)
+		worldEnd := vector.Add(rhs.Position(), edge.End)
+		edgeVector := vector.Subtract(worldEnd, worldStart)
 
+		perpendicular := vector.Vector{-edgeVector.Y, edgeVector.X}
+		perpendicular.Normalize()
+
+		lhsVector := vector.Subtract(lhs.Position(), worldStart)
+
+		projSize := vector.Dot(lhsVector, perpendicular)
+
+		if projSize < -lhsCircle.Radius {
+			return vector.ZERO(), 0, points
+		}
+
+		if projSize < penetration {
+			normal = perpendicular
+			penetration = projSize
+			selectedEdge = edge
+		}
+	}
+
+	worldStart := vector.Add(rhs.Position(), selectedEdge.Start)
+	worldEnd := vector.Add(rhs.Position(), selectedEdge.End)
+	//dot1 := vector.Dot(vector.Subtract(lhs.Position(), worldStart), vector.Subtract(worldEnd, worldStart))
+	//dot2 := vector.Dot(vector.Subtract(lhs.Position(), worldStart), vector.Subtract(worldEnd, worldStart))
+	//if dot1 <= 0.0 {
+	//	points = append(points, worldStart)
+	//}
+	//if dot2 <= 0.0 {
+	//	points = append(points, worldEnd)
+	//}
+
+	points = append(points, worldStart)
+	points = append(points, worldEnd)
+
+	return normal, penetration, points
 }
 
 func convexToConvex(lhs, rhs *body.Body) (normal vector.Vector, penetration float64, points []vector.Vector) {

@@ -58,7 +58,7 @@ func run() {
 			break
 		}
 
-		const RESPAWN_TIME = time.Millisecond * 100
+		const RESPAWN_TIME = time.Millisecond * 500
 		respawnTime -= delta
 
 		if respawnTime < 0 {
@@ -104,10 +104,12 @@ func run() {
 
 func createRandomShape(position vector.Vector, velocity vector.Vector) *body.Body {
 	var b *body.Body
-	switch random.Random(0, 1) {
+	switch random.Random(1, 1) {
 	case 0:
 		b = createBullet(position, velocity)
 	case 1:
+		b = createCircle(10, position, velocity)
+	case 2:
 		b = createConvex(
 			[]vector.Vector{
 				{random.FRandom(-30, 30), random.FRandom(-30, 30)},
