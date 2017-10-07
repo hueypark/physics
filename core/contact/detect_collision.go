@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/hueypark/physics/core/body"
+	"github.com/hueypark/physics/core/closest_point"
 	"github.com/hueypark/physics/core/shape"
 	"github.com/hueypark/physics/core/shape/circle"
 	"github.com/hueypark/physics/core/shape/convex"
@@ -176,17 +177,7 @@ func circleToConvex(lhs, rhs *body.Body) (normal vector.Vector, penetration floa
 
 	worldStart := vector.Add(rhs.Position(), selectedEdge.Start)
 	worldEnd := vector.Add(rhs.Position(), selectedEdge.End)
-	//dot1 := vector.Dot(vector.Subtract(lhs.Position(), worldStart), vector.Subtract(worldEnd, worldStart))
-	//dot2 := vector.Dot(vector.Subtract(lhs.Position(), worldStart), vector.Subtract(worldEnd, worldStart))
-	//if dot1 <= 0.0 {
-	//	points = append(points, worldStart)
-	//}
-	//if dot2 <= 0.0 {
-	//	points = append(points, worldEnd)
-	//}
-
-	points = append(points, worldStart)
-	points = append(points, worldEnd)
+	points = append(points, closest_point.LineSegmentToPoint(lhs.Position(), worldStart, worldEnd))
 
 	return normal, penetration, points
 }
