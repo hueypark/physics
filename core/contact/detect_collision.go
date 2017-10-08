@@ -177,7 +177,12 @@ func circleToConvex(lhs, rhs *body.Body) (normal vector.Vector, penetration floa
 
 	worldStart := vector.Add(rhs.Position(), selectedEdge.Start)
 	worldEnd := vector.Add(rhs.Position(), selectedEdge.End)
-	points = append(points, closest_point.LineSegmentToPoint(lhs.Position(), worldStart, worldEnd))
+	closestPoint := closest_point.LineSegmentToPoint(lhs.Position(), worldStart, worldEnd)
+	if lhsCircle.Radius*lhsCircle.Radius < vector.Subtract(lhs.Position(), closestPoint).SizeSquared() {
+		return vector.ZERO(), 0, points
+	}
+
+	points = append(points, closestPoint)
 
 	return normal, penetration, points
 }
