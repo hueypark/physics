@@ -3,6 +3,8 @@ package main
 import (
 	"time"
 
+	"golang.org/x/image/colornames"
+
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
@@ -13,7 +15,7 @@ import (
 	"github.com/hueypark/physics/core/shape/circle"
 	"github.com/hueypark/physics/core/shape/convex"
 	"github.com/hueypark/physics/core/vector"
-	"golang.org/x/image/colornames"
+	"github.com/hueypark/physics/examples/util"
 )
 
 const WINDOW_WIDTH = 1024
@@ -90,13 +92,13 @@ func run() {
 		for _, b := range world.Bodys() {
 			switch b.Shape.Type() {
 			case shape.BULLET:
-				drawCircle(imd, b.Position(), 1)
+				util.DrawCircle(imd, b.Position(), 1)
 			case shape.CIRCLE:
 				c := b.Shape.(*circle.Circle)
-				drawCircle(imd, b.Position(), c.Radius)
+				util.DrawCircle(imd, b.Position(), c.Radius)
 			case shape.CONVEX:
 				c := b.Shape.(*convex.Convex)
-				drawConvex(imd, b.Position(), c.Hull())
+				util.DrawConvex(imd, b.Position(), c.Hull())
 			}
 		}
 
@@ -104,7 +106,7 @@ func run() {
 			for _, c := range m.Contacts() {
 				start := vector.Add(c, vector.Multiply(m.Normal(), -10))
 				end := vector.Add(c, vector.Multiply(m.Normal(), 10))
-				drawDebugLine(imd, start, end)
+				util.DrawDebugLine(imd, start, end)
 			}
 		}
 
@@ -113,25 +115,4 @@ func run() {
 		imd.Draw(win)
 		win.Update()
 	}
-}
-
-func drawCircle(imd *imdraw.IMDraw, position vector.Vector, radius float64) {
-	imd.Push(pixel.V(position.X, position.Y))
-	imd.Circle(radius, 1)
-}
-
-func drawConvex(imd *imdraw.IMDraw, position vector.Vector, vertices []vector.Vector) {
-	for _, vertex := range vertices {
-		worldPosition := vector.Add(position, vertex)
-		imd.Push(pixel.V(worldPosition.X, worldPosition.Y))
-	}
-
-	first := vector.Add(position, vertices[0])
-	imd.Push(pixel.V(first.X, first.Y))
-	imd.Line(1)
-}
-
-func drawDebugLine(imd *imdraw.IMDraw, start, end vector.Vector) {
-	imd.Push(pixel.V(start.X, start.Y), pixel.V(end.X, end.Y))
-	imd.Line(1)
 }
