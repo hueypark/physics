@@ -3,7 +3,7 @@ package physics
 import (
 	"github.com/hueypark/physics/core/body"
 	"github.com/hueypark/physics/core/contact"
-	"github.com/hueypark/physics/core/vector"
+	"github.com/hueypark/physics/core/math/vector"
 )
 
 type World struct {

@@ -1,13 +1,14 @@
 package body
 
 import (
-	"github.com/hueypark/physics/core/vector"
+	"github.com/hueypark/physics/core/math/vector"
 	"github.com/hueypark/poseidon/core"
 )
 
 type Body struct {
 	id          int64
 	position    vector.Vector
+	rotation    float64
 	Velocity    vector.Vector
 	Shape       shape
 	inverseMass float64
@@ -35,6 +36,14 @@ func (r *Body) Position() vector.Vector {
 
 func (r *Body) SetPosition(position vector.Vector) {
 	r.position = position
+}
+
+func (r *Body) Rotation() float64 {
+	return r.rotation
+}
+
+func (r *Body) SetRotation(rotation float64) {
+	r.rotation = rotation
 }
 
 func (r *Body) Tick(delta float64) {

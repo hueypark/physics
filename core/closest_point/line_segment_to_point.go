@@ -1,6 +1,6 @@
 package closest_point
 
-import "github.com/hueypark/physics/core/vector"
+import "github.com/hueypark/physics/core/math/vector"
 
 func LineSegmentToPoint(point, lineA, lineB vector.Vector) vector.Vector {
 	ab := vector.Subtract(lineB, lineA)

@@ -3,7 +3,7 @@ package convex
 import (
 	"testing"
 
-	"github.com/hueypark/physics/core/vector"
+	"github.com/hueypark/physics/core/math/vector"
 	"github.com/stretchr/testify/assert"
 )
 

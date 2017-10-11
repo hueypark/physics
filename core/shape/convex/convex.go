@@ -4,7 +4,7 @@ import (
 	"math"
 
 	"github.com/hueypark/physics/core/shape"
-	"github.com/hueypark/physics/core/vector"
+	"github.com/hueypark/physics/core/math/vector"
 )
 
 type Convex struct {

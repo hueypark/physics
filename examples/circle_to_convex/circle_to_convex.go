@@ -14,8 +14,9 @@ import (
 	"github.com/hueypark/physics/core/shape"
 	"github.com/hueypark/physics/core/shape/circle"
 	"github.com/hueypark/physics/core/shape/convex"
-	"github.com/hueypark/physics/core/vector"
+	"github.com/hueypark/physics/core/math/vector"
 	"github.com/hueypark/physics/examples/util"
+	"math"
 )
 
 const WINDOW_WIDTH = 1024
@@ -49,6 +50,7 @@ func run() {
 	convexB.SetStatic()
 	convexB.SetShape(convex.New([]vector.Vector{{-50, -50}, {-100, 0}, {70, 70}, {50, -50}, {50, 50}, {-50, 50}}))
 	convexB.SetPosition(vector.Vector{100, 0})
+	convexB.SetRotation(math.Pi)
 	world.Add(convexB)
 
 	delta := time.Second / 30

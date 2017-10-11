@@ -12,7 +12,7 @@ import (
 	"github.com/hueypark/physics/core/body"
 	"github.com/hueypark/physics/core/shape"
 	"github.com/hueypark/physics/core/shape/convex"
-	"github.com/hueypark/physics/core/vector"
+	"github.com/hueypark/physics/core/math/vector"
 	"image/color"
 )
 

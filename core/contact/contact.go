@@ -2,7 +2,7 @@ package contact
 
 import (
 	"github.com/hueypark/physics/core/body"
-	"github.com/hueypark/physics/core/vector"
+	"github.com/hueypark/physics/core/math/vector"
 )
 
 const RESTITUTION = 0.5

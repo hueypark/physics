@@ -6,7 +6,7 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
 
-	"github.com/hueypark/physics/core/vector"
+	"github.com/hueypark/physics/core/math/vector"
 )
 
 func DrawCircle(imd *imdraw.IMDraw, position vector.Vector, radius float64) {
