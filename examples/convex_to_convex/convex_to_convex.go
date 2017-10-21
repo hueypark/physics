@@ -11,10 +11,10 @@ import (
 
 	"github.com/hueypark/physics/core"
 	"github.com/hueypark/physics/core/body"
+	"github.com/hueypark/physics/core/math/vector"
 	"github.com/hueypark/physics/core/shape"
 	"github.com/hueypark/physics/core/shape/circle"
 	"github.com/hueypark/physics/core/shape/convex"
-	"github.com/hueypark/physics/core/math/vector"
 	"github.com/hueypark/physics/examples/util"
 )
 
@@ -43,12 +43,14 @@ func run() {
 	convexA.SetStatic()
 	convexA.SetShape(convex.New([]vector.Vector{{-50, -50}, {-100, 0}, {70, 70}, {50, -50}, {50, 50}, {-50, 50}}))
 	convexA.SetPosition(vector.ZERO())
+	convexA.SetRotation(45)
 	world.Add(convexA)
 
 	convexB := body.New()
 	convexB.SetStatic()
 	convexB.SetShape(convex.New([]vector.Vector{{-50, -50}, {-100, 0}, {70, 70}, {50, -50}, {50, 50}, {-50, 50}}))
 	convexB.SetPosition(vector.Vector{100, 0})
+	//convexB.SetRotation(-45)
 	world.Add(convexB)
 
 	delta := time.Second / 30
@@ -98,7 +100,7 @@ func run() {
 				util.DrawCircle(imd, b.Position(), c.Radius)
 			case shape.CONVEX:
 				c := b.Shape.(*convex.Convex)
-				util.DrawConvex(imd, b.Position(), c.Hull())
+				util.DrawConvex(imd, b.Position(), b.Rotation(), c.Hull())
 			}
 		}
 

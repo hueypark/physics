@@ -3,8 +3,9 @@ package convex
 import (
 	"math"
 
-	"github.com/hueypark/physics/core/shape"
+	"github.com/hueypark/physics/core/math/rotator"
 	"github.com/hueypark/physics/core/math/vector"
+	"github.com/hueypark/physics/core/shape"
 )
 
 type Convex struct {
@@ -54,13 +55,15 @@ func (c *Convex) Edges() []Edge {
 	return c.edges
 }
 
-func MinkowskiDifference(a Convex, posA vector.Vector, b Convex, posB vector.Vector) *Convex {
+func MinkowskiDifference(a Convex, posA vector.Vector, rotA rotator.Rotator, b Convex, posB vector.Vector, rotB rotator.Rotator) *Convex {
 	vertices := []vector.Vector{}
 
 	for _, vertexA := range a.Hull() {
 		for _, vertexB := range b.Hull() {
-			worldA := vector.Add(vertexA, posA)
-			worldB := vector.Subtract(vector.Vector{}, vector.Add(vertexB, posB))
+			vertexRotA := rotA.RotateVector(vertexA)
+			vertexRotB := rotB.RotateVector(vertexB)
+			worldA := vector.Add(vertexRotA, posA)
+			worldB := vector.Subtract(vector.Vector{}, vector.Add(vertexRotB, posB))
 			vertices = append(vertices, vector.Add(worldA, worldB))
 		}
 	}
@@ -86,9 +89,9 @@ func (c *Convex) quickHull(points []vector.Vector, start, end vector.Vector) []v
 		c.quickHull(newPoints, start, farthestPoint)...)
 }
 
-func (c *Convex) InHull(position, point vector.Vector) bool {
+func (c *Convex) InHull(position vector.Vector, rotation rotator.Rotator, point vector.Vector) bool {
 	for _, edge := range c.Edges() {
-		if vector.Subtract(point, vector.Add(position, edge.Start)).OnTheRight(vector.Subtract(vector.Add(position, edge.End), vector.Add(position, edge.Start))) == false {
+		if vector.Subtract(point, vector.Add(position, rotation.RotateVector(edge.Start))).OnTheRight(vector.Subtract(vector.Add(position, rotation.RotateVector(edge.End)), vector.Add(position, rotation.RotateVector(edge.Start)))) == false {
 			return false
 		}
 	}

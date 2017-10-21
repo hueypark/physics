@@ -191,7 +191,7 @@ func convexToConvex(lhs, rhs *body.Body) (normal vector.Vector, penetration floa
 	lhsConvex := lhs.Shape.(*convex.Convex)
 	rhsConvex := rhs.Shape.(*convex.Convex)
 
-	minkowskiDifference := convex.MinkowskiDifference(*rhsConvex, rhs.Position(), *lhsConvex, lhs.Position())
+	minkowskiDifference := convex.MinkowskiDifference(*rhsConvex, rhs.Position(), rhs.Rotation(), *lhsConvex, lhs.Position(), lhs.Rotation())
 
 	penetration = math.MaxFloat64
 
@@ -219,15 +219,15 @@ func convexToConvex(lhs, rhs *body.Body) (normal vector.Vector, penetration floa
 	}
 
 	for _, point := range lhsConvex.Hull() {
-		worldPoint := vector.Add(lhs.Position(), point)
-		if rhsConvex.InHull(rhs.Position(), worldPoint) {
+		worldPoint := vector.Add(lhs.Position(), lhs.Rotation().RotateVector(point))
+		if rhsConvex.InHull(rhs.Position(), rhs.Rotation(), worldPoint) {
 			points = append(points, worldPoint)
 		}
 	}
 
 	for _, point := range rhsConvex.Hull() {
-		worldPoint := vector.Add(rhs.Position(), point)
-		if lhsConvex.InHull(lhs.Position(), worldPoint) {
+		worldPoint := vector.Add(rhs.Position(), rhs.Rotation().RotateVector(point))
+		if lhsConvex.InHull(lhs.Position(), lhs.Rotation(), worldPoint) {
 			points = append(points, worldPoint)
 		}
 	}

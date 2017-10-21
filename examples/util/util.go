@@ -7,6 +7,7 @@ import (
 	"github.com/faiface/pixel/imdraw"
 
 	"github.com/hueypark/physics/core/math/vector"
+	"github.com/hueypark/physics/core/math/rotator"
 )
 
 func DrawCircle(imd *imdraw.IMDraw, position vector.Vector, radius float64) {
@@ -16,16 +17,18 @@ func DrawCircle(imd *imdraw.IMDraw, position vector.Vector, radius float64) {
 	imd.Circle(radius, 1)
 }
 
-func DrawConvex(imd *imdraw.IMDraw, position vector.Vector, vertices []vector.Vector) {
+func DrawConvex(imd *imdraw.IMDraw, position vector.Vector, rotation rotator.Rotator, vertices []vector.Vector) {
 	imd.Color = colornames.White
 
 	for _, vertex := range vertices {
+		vertex = rotation.RotateVector(vertex)
 		worldPosition := vector.Add(position, vertex)
 		imd.Push(pixel.V(worldPosition.X, worldPosition.Y))
 	}
 
-	first := vector.Add(position, vertices[0])
-	imd.Push(pixel.V(first.X, first.Y))
+	first := rotation.RotateVector(vertices[0])
+	firstWorldPosition := vector.Add(position, first)
+	imd.Push(pixel.V(firstWorldPosition.X, firstWorldPosition.Y))
 	imd.Line(1)
 }
 

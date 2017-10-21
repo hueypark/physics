@@ -10,12 +10,12 @@ import (
 
 type Rotator float64
 
-func (r *Rotator) RotateVector(v vector.Vector) vector.Vector {
+func (r Rotator) RotateVector(v vector.Vector) vector.Vector {
 	return r.RotationMatrix().TransformVector(v)
 }
 
-func (r *Rotator) RotationMatrix() (m matrix.Matrix) {
-	rad := util.DegToRad(float64(*r))
+func (r Rotator) RotationMatrix() (m matrix.Matrix) {
+	rad := util.DegToRad(float64(r))
 
 	c := math.Cos(rad)
 	s := math.Sin(rad)

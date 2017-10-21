@@ -3,6 +3,7 @@ package physics
 import (
 	"github.com/hueypark/physics/core/body"
 	"github.com/hueypark/physics/core/contact"
+	"github.com/hueypark/physics/core/context"
 	"github.com/hueypark/physics/core/math/vector"
 )
 
@@ -35,7 +36,7 @@ func (w *World) Tick(delta float64) {
 }
 
 func (w *World) Add(body *body.Body) {
-	w.bodys[Context.IdGenerator.Generate()] = body
+	w.bodys[context.Context.IdGenerator.Generate()] = body
 }
 
 func (w *World) ReservedDelete(id int64) {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"image/color"
 	"time"
 
 	"github.com/faiface/pixel"
@@ -10,10 +11,10 @@ import (
 
 	"github.com/hueypark/physics/core"
 	"github.com/hueypark/physics/core/body"
+	"github.com/hueypark/physics/core/math/vector"
 	"github.com/hueypark/physics/core/shape"
 	"github.com/hueypark/physics/core/shape/convex"
-	"github.com/hueypark/physics/core/math/vector"
-	"image/color"
+	"github.com/hueypark/physics/examples/util"
 )
 
 const WINDOW_WIDTH = 1024
@@ -41,11 +42,12 @@ func run() {
 	convexA.SetStatic()
 	convexA.SetShape(convex.New([]vector.Vector{{-50, -50}, {50, -50}, {0, 100}, {50, 50}, {-50, 50}}))
 	convexA.SetPosition(vector.Vector{0, 0})
+	convexA.SetRotation(90)
 	world.Add(convexA)
 
 	convexB := body.New()
 	convexB.SetStatic()
-	convexB.SetShape(convex.New([]vector.Vector{{-50, -50},{-100, 0}, {70,70}, {50, -50}, {50, 50}, {-50, 50}}))
+	convexB.SetShape(convex.New([]vector.Vector{{-50, -50}, {-100, 0}, {70, 70}, {50, -50}, {50, 50}, {-50, 50}}))
 	convexB.SetPosition(vector.Vector{100, 0})
 	world.Add(convexB)
 
@@ -71,7 +73,6 @@ func run() {
 			convexA.SetPosition(vector.Vector{pos.X, pos.Y})
 		}
 
-
 		if win.JustPressed(pixelgl.MouseButtonRight) {
 			rightButtonClicked = true
 		}
@@ -91,35 +92,23 @@ func run() {
 		for _, b := range world.Bodys() {
 			if b.Shape.Type() == shape.CONVEX {
 				convex := b.Shape.(*convex.Convex)
-				drawConvex(imd, b.Position(), convex.Hull(), colornames.Green)
+				util.DrawConvex(imd, b.Position(), b.Rotation(), convex.Hull())
 			}
 		}
 
 		convexMD := convex.MinkowskiDifference(
-			*convexA.Shape.(*convex.Convex), convexA.Position(),
-			*convexB.Shape.(*convex.Convex), convexB.Position())
-		drawConvex(imd, vector.Vector{}, convexMD.Hull(), colornames.Blue)
+			*convexA.Shape.(*convex.Convex), convexA.Position(), convexA.Rotation(),
+			*convexB.Shape.(*convex.Convex), convexB.Position(), convexB.Rotation())
+		util.DrawConvex(imd, vector.Vector{}, 0, convexMD.Hull())
 
-		drawLine(imd, vector.Vector{0, WINDOW_HEIGHT}, vector.Vector{0,-WINDOW_HEIGHT}, colornames.White)
-		drawLine(imd, vector.Vector{WINDOW_WIDTH, 0}, vector.Vector{-WINDOW_WIDTH,0}, colornames.White)
+		drawLine(imd, vector.Vector{0, WINDOW_HEIGHT}, vector.Vector{0, -WINDOW_HEIGHT}, colornames.White)
+		drawLine(imd, vector.Vector{WINDOW_WIDTH, 0}, vector.Vector{-WINDOW_WIDTH, 0}, colornames.White)
 
 		world.Tick(delta.Seconds())
 
 		imd.Draw(win)
 		win.Update()
 	}
-}
-
-func drawConvex(imd *imdraw.IMDraw, position vector.Vector, vertices []vector.Vector, c color.Color) {
-	imd.Color = c
-	for _, vertex := range vertices {
-		worldPosition := vector.Add(position, vertex)
-		imd.Push(pixel.V(worldPosition.X, worldPosition.Y))
-	}
-
-	first := vector.Add(position, vertices[0])
-	imd.Push(pixel.V(first.X, first.Y))
-	imd.Line(3)
 }
 
 func drawLine(imd *imdraw.IMDraw, start, end vector.Vector, c color.Color) {

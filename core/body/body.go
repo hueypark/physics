@@ -1,14 +1,15 @@
 package body
 
 import (
+	"github.com/hueypark/physics/core/context"
+	"github.com/hueypark/physics/core/math/rotator"
 	"github.com/hueypark/physics/core/math/vector"
-	"github.com/hueypark/poseidon/core"
 )
 
 type Body struct {
 	id          int64
 	position    vector.Vector
-	rotation    float64
+	rotation    rotator.Rotator
 	Velocity    vector.Vector
 	Shape       shape
 	inverseMass float64
@@ -21,7 +22,7 @@ type shape interface {
 
 func New() *Body {
 	r := Body{}
-	r.id = core.Context.IdGenerator.Generate()
+	r.id = context.Context.IdGenerator.Generate()
 
 	return &r
 }
@@ -38,11 +39,11 @@ func (r *Body) SetPosition(position vector.Vector) {
 	r.position = position
 }
 
-func (r *Body) Rotation() float64 {
+func (r *Body) Rotation() rotator.Rotator {
 	return r.rotation
 }
 
-func (r *Body) SetRotation(rotation float64) {
+func (r *Body) SetRotation(rotation rotator.Rotator) {
 	r.rotation = rotation
 }
 
