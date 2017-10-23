@@ -21,7 +21,7 @@ func (c *Contact) DetectCollision() {
 		case shape.BULLET:
 			break
 		case shape.CIRCLE:
-			c.bulletToCircle(c.rhs.Shape.(*circle.Circle))
+			c.normal, c.penetration, c.points = bulletToCircle(c.lhs, c.rhs)
 			break
 		case shape.CONVEX:
 			c.normal, c.penetration, c.points = bulletToConvex(c.lhs, c.rhs)
@@ -31,10 +31,11 @@ func (c *Contact) DetectCollision() {
 	case shape.CIRCLE:
 		switch rhsType {
 		case shape.BULLET:
-			c.circleToBullet(c.lhs.Shape.(*circle.Circle))
+			c.swap()
+			c.normal, c.penetration, c.points = bulletToCircle(c.lhs, c.rhs)
 			break
 		case shape.CIRCLE:
-			c.circleToCircle(c.lhs.Shape.(*circle.Circle), c.rhs.Shape.(*circle.Circle))
+			c.normal, c.penetration, c.points = circleToCircle(c.lhs, c.rhs)
 			break
 		case shape.CONVEX:
 			c.normal, c.penetration, c.points = circleToConvex(c.lhs, c.rhs)
@@ -62,36 +63,24 @@ func (c *Contact) swap() {
 	c.lhs, c.rhs = c.rhs, c.lhs
 }
 
-func (c *Contact) bulletToCircle(rhs *circle.Circle) {
-	c.normal = vector.Subtract(c.rhs.Position(), c.lhs.Position())
+func bulletToCircle(lhs, rhs *body.Body) (normal vector.Vector, penetration float64, points []vector.Vector) {
+	rhsCircle := rhs.Shape.(*circle.Circle)
 
-	distanceSquared := c.normal.SizeSquared()
+	normal = vector.Subtract(rhs.Position(), lhs.Position())
 
-	if distanceSquared >= rhs.Radius*rhs.Radius {
+	distanceSquared := normal.SizeSquared()
+
+	if distanceSquared >= rhsCircle.Radius*rhsCircle.Radius {
 		return
 	}
 
 	distance := math.Sqrt(distanceSquared)
 
-	c.penetration = rhs.Radius - distance
-	c.normal.Normalize()
-	c.points = append(c.points, c.lhs.Position())
-}
+	normal.Normalize()
+	penetration = rhsCircle.Radius - distance
+	points = append(points, lhs.Position())
 
-func (c *Contact) circleToBullet(lhs *circle.Circle) {
-	c.normal = vector.Subtract(c.rhs.Position(), c.lhs.Position())
-
-	distanceSquared := c.normal.SizeSquared()
-
-	if distanceSquared >= lhs.Radius*lhs.Radius {
-		return
-	}
-
-	distance := math.Sqrt(distanceSquared)
-
-	c.penetration = lhs.Radius - distance
-	c.normal.Normalize()
-	c.points = append(c.points, c.lhs.Position())
+	return normal, penetration, points
 }
 
 func bulletToConvex(lhs, rhs *body.Body) (normal vector.Vector, penetration float64, points []vector.Vector) {
@@ -127,13 +116,17 @@ func bulletToConvex(lhs, rhs *body.Body) (normal vector.Vector, penetration floa
 	}
 
 	points = append(points, lhs.Position())
+
 	return normal, penetration, points
 }
 
-func (c *Contact) circleToCircle(lhsCircle, rhsCircle *circle.Circle) {
-	c.normal = vector.Subtract(c.rhs.Position(), c.lhs.Position())
+func circleToCircle(lhs, rhs *body.Body) (normal vector.Vector, penetration float64, points []vector.Vector) {
+	lhsCircle := lhs.Shape.(*circle.Circle)
+	rhsCircle := rhs.Shape.(*circle.Circle)
 
-	distanceSquared := c.normal.SizeSquared()
+	normal = vector.Subtract(rhs.Position(), lhs.Position())
+
+	distanceSquared := normal.SizeSquared()
 	radius := lhsCircle.Radius + rhsCircle.Radius
 
 	if distanceSquared >= radius*radius {
@@ -142,9 +135,11 @@ func (c *Contact) circleToCircle(lhsCircle, rhsCircle *circle.Circle) {
 
 	distance := math.Sqrt(distanceSquared)
 
-	c.penetration = radius - distance
-	c.normal.Normalize()
-	c.points = append(c.points, vector.Add(vector.Multiply(c.normal, lhsCircle.Radius), c.lhs.Position()))
+	normal.Normalize()
+	penetration = radius - distance
+	points = append(points, vector.Add(vector.Multiply(normal, lhsCircle.Radius), lhs.Position()))
+
+	return normal, penetration, points
 }
 
 func circleToConvex(lhs, rhs *body.Body) (normal vector.Vector, penetration float64, points []vector.Vector) {
