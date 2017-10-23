@@ -5,10 +5,10 @@ import (
 
 	"github.com/hueypark/physics/core/body"
 	"github.com/hueypark/physics/core/closest_point"
+	"github.com/hueypark/physics/core/math/vector"
 	"github.com/hueypark/physics/core/shape"
 	"github.com/hueypark/physics/core/shape/circle"
 	"github.com/hueypark/physics/core/shape/convex"
-	"github.com/hueypark/physics/core/math/vector"
 )
 
 func (c *Contact) DetectCollision() {
@@ -100,8 +100,10 @@ func bulletToConvex(lhs, rhs *body.Body) (normal vector.Vector, penetration floa
 	penetration = math.MaxFloat64
 
 	for _, edge := range rhsConvex.Edges() {
-		worldStart := vector.Add(rhs.Position(), edge.Start)
-		worldEnd := vector.Add(rhs.Position(), edge.End)
+		worldStart := rhs.Rotation().RotateVector(edge.Start)
+		worldStart = vector.Add(rhs.Position(), worldStart)
+		worldEnd := rhs.Rotation().RotateVector(edge.End)
+		worldEnd = vector.Add(rhs.Position(), worldEnd)
 		edgeVector := vector.Subtract(worldEnd, worldStart)
 		pointVector := vector.Subtract(lhs.Position(), worldStart)
 
@@ -153,8 +155,10 @@ func circleToConvex(lhs, rhs *body.Body) (normal vector.Vector, penetration floa
 	var selectedEdge convex.Edge
 
 	for _, edge := range rhsConvex.Edges() {
-		worldStart := vector.Add(rhs.Position(), edge.Start)
-		worldEnd := vector.Add(rhs.Position(), edge.End)
+		worldStart := rhs.Rotation().RotateVector(edge.Start)
+		worldStart = vector.Add(rhs.Position(), worldStart)
+		worldEnd := rhs.Rotation().RotateVector(edge.End)
+		worldEnd = vector.Add(rhs.Position(), worldEnd)
 		edgeVector := vector.Subtract(worldEnd, worldStart)
 
 		perpendicular := vector.Vector{-edgeVector.Y, edgeVector.X}
@@ -175,8 +179,10 @@ func circleToConvex(lhs, rhs *body.Body) (normal vector.Vector, penetration floa
 		}
 	}
 
-	worldStart := vector.Add(rhs.Position(), selectedEdge.Start)
-	worldEnd := vector.Add(rhs.Position(), selectedEdge.End)
+	worldStart := rhs.Rotation().RotateVector(selectedEdge.Start)
+	worldStart = vector.Add(rhs.Position(), worldStart)
+	worldEnd := rhs.Rotation().RotateVector(selectedEdge.End)
+	worldEnd = vector.Add(rhs.Position(), worldEnd)
 	closestPoint := closest_point.LineSegmentToPoint(lhs.Position(), worldStart, worldEnd)
 	if lhsCircle.Radius*lhsCircle.Radius < vector.Subtract(lhs.Position(), closestPoint).SizeSquared() {
 		return vector.ZERO(), 0, points

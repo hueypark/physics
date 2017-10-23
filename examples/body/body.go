@@ -11,11 +11,12 @@ import (
 	"github.com/hueypark/framework/core/random"
 	"github.com/hueypark/physics/core"
 	"github.com/hueypark/physics/core/body"
+	"github.com/hueypark/physics/core/math/rotator"
+	"github.com/hueypark/physics/core/math/vector"
 	"github.com/hueypark/physics/core/shape"
 	"github.com/hueypark/physics/core/shape/bullet"
 	"github.com/hueypark/physics/core/shape/circle"
 	"github.com/hueypark/physics/core/shape/convex"
-	"github.com/hueypark/physics/core/math/vector"
 	"github.com/hueypark/physics/examples/util"
 )
 
@@ -47,6 +48,7 @@ func run() {
 			{-300, -120},
 		},
 		vector.Vector{0, -200},
+		0,
 		vector.Vector{})
 	plane.SetStatic()
 	world.Add(plane)
@@ -64,7 +66,11 @@ func run() {
 
 		if respawnTime < 0 {
 			respawnTime = RESPAWN_TIME
-			world.Add(createRandomShape(vector.Vector{random.FRandom(-300, 300), 0}, vector.Vector{0, random.FRandom(100, 300)}))
+			world.Add(
+				createRandomShape(
+					vector.Vector{random.FRandom(-300, 300), 0},
+					rotator.Rotator(random.FRandom(180.0, 360.0)),
+					vector.Vector{0, random.FRandom(100, 300)}))
 		}
 
 		world.Tick(delta.Seconds())
@@ -85,7 +91,7 @@ func run() {
 				util.DrawCircle(imd, b.Position(), c.Radius)
 			case shape.CONVEX:
 				c := b.Shape.(*convex.Convex)
-				util.DrawConvex(imd, b.Position(), c.Hull())
+				util.DrawConvex(imd, b.Position(), b.Rotation(), c.Hull())
 			}
 		}
 
@@ -103,9 +109,9 @@ func run() {
 	}
 }
 
-func createRandomShape(position vector.Vector, velocity vector.Vector) *body.Body {
+func createRandomShape(position vector.Vector, rotation rotator.Rotator, velocity vector.Vector) *body.Body {
 	var b *body.Body
-	switch random.Random(1, 1) {
+	switch random.Random(0, 2) {
 	case 0:
 		b = createBullet(position, velocity)
 	case 1:
@@ -113,18 +119,19 @@ func createRandomShape(position vector.Vector, velocity vector.Vector) *body.Bod
 	case 2:
 		b = createConvex(
 			[]vector.Vector{
-				{random.FRandom(-30, 30), random.FRandom(-30, 30)},
-				{random.FRandom(-30, 30), random.FRandom(-30, 30)},
-				{random.FRandom(-30, 30), random.FRandom(-30, 30)},
-				{random.FRandom(-30, 30), random.FRandom(-30, 30)},
-				{random.FRandom(-30, 30), random.FRandom(-30, 30)},
-				{random.FRandom(-30, 30), random.FRandom(-30, 30)},
-				{random.FRandom(-30, 30), random.FRandom(-30, 30)},
-				{random.FRandom(-30, 30), random.FRandom(-30, 30)},
-				{random.FRandom(-30, 30), random.FRandom(-30, 30)},
-				{random.FRandom(-30, 30), random.FRandom(-30, 30)},
+				{random.FRandom(-50, 50), random.FRandom(-50, 50)},
+				{random.FRandom(-50, 50), random.FRandom(-50, 50)},
+				{random.FRandom(-50, 50), random.FRandom(-50, 50)},
+				{random.FRandom(-50, 50), random.FRandom(-50, 50)},
+				{random.FRandom(-50, 50), random.FRandom(-50, 50)},
+				{random.FRandom(-50, 50), random.FRandom(-50, 50)},
+				{random.FRandom(-50, 50), random.FRandom(-50, 50)},
+				{random.FRandom(-50, 50), random.FRandom(-50, 50)},
+				{random.FRandom(-50, 50), random.FRandom(-50, 50)},
+				{random.FRandom(-50, 50), random.FRandom(-50, 50)},
 			},
 			position,
+			rotation,
 			velocity)
 	}
 
@@ -151,11 +158,12 @@ func createCircle(radius float64, position vector.Vector, velocity vector.Vector
 	return b
 }
 
-func createConvex(vertices []vector.Vector, position vector.Vector, velocity vector.Vector) *body.Body {
+func createConvex(vertices []vector.Vector, position vector.Vector, rotation rotator.Rotator, velocity vector.Vector) *body.Body {
 	b := body.New()
 	b.SetMass(1)
 	b.SetShape(convex.New(vertices))
 	b.SetPosition(position)
+	b.SetRotation(rotation)
 	b.Velocity = velocity
 
 	return b
