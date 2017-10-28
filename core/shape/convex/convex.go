@@ -134,7 +134,7 @@ func (c *Convex) getDistanceIndicator(point, start, end vector.Vector) float64 {
 
 	vPoint := vector.Subtract(point, start)
 
-	return vector.Cross(vPoint, vLine)
+	return vector.Cross(vLine, vPoint)
 }
 
 func (c *Convex) getFarthestPoint(pointDistanceIndicatorMap map[vector.Vector]float64) (farthestPoint vector.Vector) {
