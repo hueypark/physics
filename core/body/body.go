@@ -7,13 +7,15 @@ import (
 )
 
 type Body struct {
-	id          int64
-	position    vector.Vector
-	rotation    rotator.Rotator
-	Velocity    vector.Vector
-	Shape       shape
-	inverseMass float64
-	forceSum    vector.Vector
+	id              int64
+	position        vector.Vector
+	rotation        rotator.Rotator
+	Velocity        vector.Vector
+	angularVelocity float64
+	Shape           shape
+	inverseMass     float64
+	inverseInertia  float64
+	forceSum        vector.Vector
 }
 
 type shape interface {
@@ -47,6 +49,10 @@ func (r *Body) SetRotation(rotation rotator.Rotator) {
 	r.rotation = rotation
 }
 
+func (r *Body) SetAngularVelocity(degrees float64) {
+	r.angularVelocity = degrees
+}
+
 func (r *Body) Tick(delta float64) {
 	if r.inverseMass <= 0.0 {
 		return
@@ -60,10 +66,13 @@ func (r *Body) Tick(delta float64) {
 	r.Velocity.AddScaledVector(acceleration, delta)
 
 	r.forceSum.Clear()
+
+	r.rotation.AddScaled(r.angularVelocity, delta)
 }
 
 func (r *Body) SetMass(mass float64) {
 	r.inverseMass = 1.0 / mass
+	r.inverseInertia = 1.0 / mass
 }
 
 func (r *Body) InverseMass() float64 {

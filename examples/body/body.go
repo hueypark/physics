@@ -48,7 +48,7 @@ func run() {
 			{-300, -120},
 		},
 		vector.Vector{0, -200},
-		0,
+		rotator.ZERO(),
 		vector.Vector{})
 	plane.SetStatic()
 	world.Add(plane)
@@ -69,7 +69,7 @@ func run() {
 			world.Add(
 				createRandomShape(
 					vector.Vector{random.FRandom(-300, 300), 0},
-					rotator.Rotator(random.FRandom(180.0, 360.0)),
+					rotator.Rotator{random.FRandom(180.0, 360.0)},
 					vector.Vector{0, random.FRandom(100, 300)}))
 		}
 
@@ -164,6 +164,7 @@ func createConvex(vertices []vector.Vector, position vector.Vector, rotation rot
 	b.SetShape(convex.New(vertices))
 	b.SetPosition(position)
 	b.SetRotation(rotation)
+	b.SetAngularVelocity(180)
 	b.Velocity = velocity
 
 	return b

@@ -8,14 +8,28 @@ import (
 	"github.com/hueypark/physics/core/math/vector"
 )
 
-type Rotator float64
+type Rotator struct {
+	Degrees float64
+}
+
+func ZERO() Rotator {
+	return Rotator{0}
+}
+
+func (r *Rotator) Add(degrees float64) {
+	r.Degrees += degrees
+}
+
+func (r *Rotator) AddScaled(degrees, scale float64) {
+	r.Degrees += degrees * scale
+}
 
 func (r Rotator) RotateVector(v vector.Vector) vector.Vector {
 	return r.RotationMatrix().TransformVector(v)
 }
 
 func (r Rotator) RotationMatrix() (m matrix.Matrix) {
-	rad := util.DegToRad(float64(r))
+	rad := util.DegToRad(r.Degrees)
 
 	c := math.Cos(rad)
 	s := math.Sin(rad)
