@@ -102,12 +102,7 @@ func run() {
 			}
 		}
 
-		for _, m := range world.Contacts() {
-			for _, c := range m.Points() {
-				end := vector.Add(c, vector.Multiply(m.Normal(), -m.Penetration()))
-				util.DrawDebugLine(imd, c, end)
-			}
-		}
+		util.DrawContacts(imd, world.Contacts())
 
 		world.Tick(delta.Seconds())
 
