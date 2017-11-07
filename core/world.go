@@ -14,8 +14,8 @@ type World struct {
 	reservedDeleteBodyIds []int64
 }
 
-func New() World {
-	return World{
+func New() *World {
+	return &World{
 		bodys:   make(map[int64]*body.Body),
 		gravity: vector.Vector{0.0, -100.0}}
 }

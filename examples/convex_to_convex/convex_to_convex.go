@@ -12,8 +12,6 @@ import (
 	"github.com/hueypark/physics/core"
 	"github.com/hueypark/physics/core/body"
 	"github.com/hueypark/physics/core/math/vector"
-	"github.com/hueypark/physics/core/shape"
-	"github.com/hueypark/physics/core/shape/circle"
 	"github.com/hueypark/physics/core/shape/convex"
 	"github.com/hueypark/physics/examples/util"
 )
@@ -89,25 +87,7 @@ func run() {
 		win.Clear(colornames.Black)
 		imd.Clear()
 
-		for _, b := range world.Bodys() {
-			switch b.Shape.Type() {
-			case shape.BULLET:
-				util.DrawCircle(imd, b.Position(), 1)
-			case shape.CIRCLE:
-				c := b.Shape.(*circle.Circle)
-				util.DrawCircle(imd, b.Position(), c.Radius)
-			case shape.CONVEX:
-				c := b.Shape.(*convex.Convex)
-				util.DrawConvex(imd, b.Position(), b.Rotation(), c.Hull())
-			}
-		}
-
-		for _, m := range world.Contacts() {
-			for _, c := range m.Points() {
-				end := vector.Add(c, vector.Multiply(m.Normal(), -m.Penetration()))
-				util.DrawDebugLine(imd, c, end)
-			}
-		}
+		util.DrawWorld(imd, world)
 
 		world.Tick(delta.Seconds())
 
