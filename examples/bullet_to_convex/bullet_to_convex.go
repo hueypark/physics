@@ -1,7 +1,6 @@
 package main
 
 import (
-	"math"
 	"time"
 
 	"golang.org/x/image/colornames"
@@ -18,6 +17,7 @@ import (
 	"github.com/hueypark/physics/core/shape/circle"
 	"github.com/hueypark/physics/core/shape/convex"
 	"github.com/hueypark/physics/examples/util"
+	"fmt"
 )
 
 const WINDOW_WIDTH = 1024
@@ -51,7 +51,6 @@ func run() {
 	convexB.SetStatic()
 	convexB.SetShape(convex.New([]vector.Vector{{-50, -50}, {-100, 0}, {70, 70}, {50, -50}, {50, 50}, {-50, 50}}))
 	convexB.SetPosition(vector.Vector{100, 0})
-	convexB.SetRotation(math.Pi)
 	world.Add(convexB)
 
 	delta := time.Second / 30
@@ -107,9 +106,8 @@ func run() {
 
 		for _, m := range world.Manifolds() {
 			for _, c := range m.Contacts() {
-				start := vector.Add(c, vector.Multiply(m.Normal(), -10))
-				end := vector.Add(c, vector.Multiply(m.Normal(), 10))
-				util.DrawDebugLine(imd, start, end)
+				end := vector.Add(c, vector.Multiply(m.Normal(), -m.Penetration()))
+				util.DrawDebugLine(imd, c, end)
 			}
 		}
 

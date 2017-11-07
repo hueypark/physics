@@ -11,12 +11,11 @@ import (
 
 	"github.com/hueypark/physics/core"
 	"github.com/hueypark/physics/core/body"
+	"github.com/hueypark/physics/core/math/vector"
 	"github.com/hueypark/physics/core/shape"
 	"github.com/hueypark/physics/core/shape/circle"
 	"github.com/hueypark/physics/core/shape/convex"
-	"github.com/hueypark/physics/core/math/vector"
 	"github.com/hueypark/physics/examples/util"
-	"math"
 )
 
 const WINDOW_WIDTH = 1024
@@ -50,7 +49,6 @@ func run() {
 	convexB.SetStatic()
 	convexB.SetShape(convex.New([]vector.Vector{{-50, -50}, {-100, 0}, {70, 70}, {50, -50}, {50, 50}, {-50, 50}}))
 	convexB.SetPosition(vector.Vector{100, 0})
-	convexB.SetRotation(math.Pi)
 	world.Add(convexB)
 
 	delta := time.Second / 30
@@ -100,15 +98,15 @@ func run() {
 				util.DrawCircle(imd, b.Position(), c.Radius)
 			case shape.CONVEX:
 				c := b.Shape.(*convex.Convex)
-				util.DrawConvex(imd, b.Position(), c.Hull())
+				util.DrawConvex(imd, b.Position(), b.Rotation(), c.Hull())
 			}
 		}
 
 		for _, m := range world.Manifolds() {
 			for _, c := range m.Contacts() {
-				start := vector.Add(c, vector.Multiply(m.Normal(), -10))
-				end := vector.Add(c, vector.Multiply(m.Normal(), 10))
-				util.DrawDebugLine(imd, start, end)
+				//start := vector.Add(c, vector.Multiply(m.Normal(), -10))
+				end := vector.Add(c, vector.Multiply(m.Normal(), m.Penetration()))
+				util.DrawDebugLine(imd, c, end)
 			}
 		}
 
