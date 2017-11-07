@@ -102,10 +102,9 @@ func run() {
 			}
 		}
 
-		for _, m := range world.Manifolds() {
-			for _, c := range m.Contacts() {
-				//start := vector.Add(c, vector.Multiply(m.Normal(), -10))
-				end := vector.Add(c, vector.Multiply(m.Normal(), m.Penetration()))
+		for _, m := range world.Contacts() {
+			for _, c := range m.Points() {
+				end := vector.Add(c, vector.Multiply(m.Normal(), -m.Penetration()))
 				util.DrawDebugLine(imd, c, end)
 			}
 		}

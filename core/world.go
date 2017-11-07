@@ -10,7 +10,7 @@ import (
 type World struct {
 	bodys                 map[int64]*body.Body
 	gravity               vector.Vector
-	contscts              []*contact.Contact
+	contacts              []*contact.Contact
 	reservedDeleteBodyIds []int64
 }
 
@@ -23,8 +23,8 @@ func New() World {
 func (w *World) Tick(delta float64) {
 	w.deleteReserveDeleteBodys()
 
-	w.contscts = w.broadPhase()
-	for _, c := range w.contscts {
+	w.contacts = w.broadPhase()
+	for _, c := range w.contacts {
 		c.DetectCollision()
 		c.SolveCollision()
 	}
@@ -51,8 +51,8 @@ func (w *World) Bodys() map[int64]*body.Body {
 	return w.bodys
 }
 
-func (w *World) Manifolds() []*contact.Contact {
-	return w.contscts
+func (w *World) Contacts() []*contact.Contact {
+	return w.contacts
 }
 
 func (w *World) broadPhase() []*contact.Contact {

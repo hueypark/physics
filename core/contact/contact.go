@@ -23,7 +23,7 @@ func (c *Contact) SolveCollision() {
 	c.addImpulse()
 }
 
-func (c *Contact) Contacts() []vector.Vector {
+func (c *Contact) Points() []vector.Vector {
 	return c.points
 }
 
