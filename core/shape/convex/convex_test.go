@@ -3,6 +3,7 @@ package convex
 import (
 	"testing"
 
+	"github.com/hueypark/physics/core/math/rotator"
 	"github.com/hueypark/physics/core/math/vector"
 	"github.com/stretchr/testify/assert"
 )
@@ -52,6 +53,19 @@ func TestInHull(t *testing.T) {
 
 	c := New(vertices)
 
-	a.True(c.InHull(vector.ZERO(), vector.Vector{50, 50}))
-	a.False(c.InHull(vector.ZERO(), vector.Vector{50, -50}))
+	a.True(c.InHull(vector.ZERO(), rotator.ZERO(), vector.Vector{50, 50}))
+	a.False(c.InHull(vector.ZERO(), rotator.ZERO(), vector.Vector{50, -50}))
+}
+
+func TestSupport(t *testing.T) {
+	a := assert.New(t)
+
+	c := New(
+		[]vector.Vector{
+			{0, 0},
+			{100, 0},
+			{0, 100},
+			{100, 100}})
+
+	a.Equal(c.Support(vector.Vector{1, 1}), vector.Vector{100, 100})
 }

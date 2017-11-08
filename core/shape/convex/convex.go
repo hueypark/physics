@@ -15,8 +15,9 @@ type Convex struct {
 }
 
 type Edge struct {
-	Start vector.Vector
-	End   vector.Vector
+	Start  vector.Vector
+	End    vector.Vector
+	Normal vector.Vector
 }
 
 func New(vertices []vector.Vector) *Convex {
@@ -43,12 +44,19 @@ func (c *Convex) Hull() []vector.Vector {
 func (c *Convex) Edges() []Edge {
 	if c.edges == nil {
 		hull := c.Hull()
-		for i, vertex := range hull {
+		for i, start := range hull {
 			nextIndex := i + 1
 			if len(hull) <= nextIndex {
 				nextIndex = 0
 			}
-			c.edges = append(c.edges, Edge{vertex, hull[nextIndex]})
+			end := hull[nextIndex]
+			r := rotator.Rotator{90}
+			normal := r.RotateVector(vector.Subtract(start, end))
+			normal.Normalize()
+			c.edges = append(c.edges, Edge{
+				start,
+				end,
+				normal})
 		}
 	}
 
@@ -69,6 +77,21 @@ func MinkowskiDifference(a Convex, posA vector.Vector, rotA rotator.Rotator, b C
 	}
 
 	return New(vertices)
+}
+
+func (c *Convex) Support(dir vector.Vector) (bestVertex vector.Vector) {
+	bestProjection := -math.MaxFloat64
+
+	for _, vertex := range c.Hull() {
+		projection := vector.Dot(vertex, dir)
+
+		if bestProjection < projection {
+			bestVertex = vertex
+			bestProjection = projection
+		}
+	}
+
+	return bestVertex
 }
 
 func (c *Convex) quickHull(points []vector.Vector, start, end vector.Vector) []vector.Vector {
