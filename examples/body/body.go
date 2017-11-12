@@ -13,7 +13,6 @@ import (
 	"github.com/hueypark/physics/core/body"
 	"github.com/hueypark/physics/core/math/rotator"
 	"github.com/hueypark/physics/core/math/vector"
-	"github.com/hueypark/physics/core/shape"
 	"github.com/hueypark/physics/core/shape/bullet"
 	"github.com/hueypark/physics/core/shape/circle"
 	"github.com/hueypark/physics/core/shape/convex"
@@ -61,7 +60,7 @@ func run() {
 			break
 		}
 
-		const RESPAWN_TIME = time.Millisecond * 500
+		const RESPAWN_TIME = time.Millisecond * 2000
 		respawnTime -= delta
 
 		if respawnTime < 0 {
@@ -70,7 +69,7 @@ func run() {
 				createRandomShape(
 					vector.Vector{random.FRandom(-300, 300), 0},
 					rotator.Rotator{random.FRandom(180.0, 360.0)},
-					vector.Vector{0, random.FRandom(100, 300)}))
+					vector.Vector{0, 0}))
 		}
 
 		world.Tick(delta.Seconds())
@@ -78,30 +77,7 @@ func run() {
 		win.Clear(colornames.Black)
 		imd.Clear()
 
-		for _, b := range world.Bodys() {
-			if isOutbound(b.Position()) {
-				world.ReservedDelete(b.Id())
-			}
-
-			switch b.Shape.Type() {
-			case shape.BULLET:
-				util.DrawCircle(imd, b.Position(), 1)
-			case shape.CIRCLE:
-				c := b.Shape.(*circle.Circle)
-				util.DrawCircle(imd, b.Position(), c.Radius)
-			case shape.CONVEX:
-				c := b.Shape.(*convex.Convex)
-				util.DrawConvex(imd, b.Position(), b.Rotation(), c.Hull())
-			}
-		}
-
-		for _, m := range world.Contacts() {
-			for _, c := range m.Points() {
-				start := vector.Add(c, vector.Multiply(m.Normal(), -10))
-				end := vector.Add(c, vector.Multiply(m.Normal(), 10))
-				util.DrawDebugLine(imd, start, end)
-			}
-		}
+		util.DrawWorld(imd, world)
 
 		imd.Draw(win)
 
@@ -111,7 +87,7 @@ func run() {
 
 func createRandomShape(position vector.Vector, rotation rotator.Rotator, velocity vector.Vector) *body.Body {
 	var b *body.Body
-	switch random.Random(0, 2) {
+	switch random.Random(2, 2) {
 	case 0:
 		b = createBullet(position, velocity)
 	case 1:
@@ -163,8 +139,7 @@ func createConvex(vertices []vector.Vector, position vector.Vector, rotation rot
 	b.SetMass(1)
 	b.SetShape(convex.New(vertices))
 	b.SetPosition(position)
-	b.SetRotation(rotation)
-	b.SetAngularVelocity(180)
+	//b.SetRotation(rotation)
 	b.Velocity = velocity
 
 	return b

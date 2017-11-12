@@ -44,6 +44,13 @@ func DrawDebugLine(imd *imdraw.IMDraw, start, end vector.Vector) {
 	imd.Line(2)
 }
 
+func DrawDebugCircle(imd *imdraw.IMDraw, position vector.Vector, radius float64) {
+	imd.Color = colornames.Limegreen
+
+	imd.Push(pixel.V(position.X, position.Y))
+	imd.Circle(radius, 2)
+}
+
 func DrawWorld(imd *imdraw.IMDraw, world *physics.World) {
 	for _, b := range world.Bodys() {
 		switch b.Shape.Type() {
@@ -64,8 +71,11 @@ func DrawWorld(imd *imdraw.IMDraw, world *physics.World) {
 func DrawContacts(imd *imdraw.IMDraw, contacts []*contact.Contact) {
 	for _, c := range contacts {
 		for _, p := range c.Points() {
-			end := vector.Add(p, vector.Multiply(c.Normal(), -c.Penetration()))
-			DrawDebugLine(imd, p, end)
+			penHalf := c.Penetration() / 2
+			start := vector.Add(p, vector.Multiply(c.Normal(), penHalf))
+			end := vector.Add(p, vector.Multiply(c.Normal(), -penHalf))
+			DrawDebugCircle(imd, p, 3)
+			DrawDebugLine(imd, start, end)
 		}
 	}
 }

@@ -188,50 +188,50 @@ func circleToConvex(lhs, rhs *body.Body) (normal vector.Vector, penetration floa
 	return normal, penetration, points
 }
 
-func convexToConvex(lhs, rhs *body.Body) (normal vector.Vector, penetration float64, points []vector.Vector) {
-	lhsConvex := lhs.Shape.(*convex.Convex)
-	rhsConvex := rhs.Shape.(*convex.Convex)
+func convexToConvex(l, r *body.Body) (normal vector.Vector, penetration float64, points []vector.Vector) {
+	lConvex := l.Shape.(*convex.Convex)
+	rConvex := r.Shape.(*convex.Convex)
 
-	minkowskiDifference := convex.MinkowskiDifference(*rhsConvex, rhs.Position(), rhs.Rotation(), *lhsConvex, lhs.Position(), lhs.Rotation())
+	lPenetration, lNormal, lPoint := findAxisLeastPenetration(lConvex, rConvex, l.Position(), r.Position())
+	if lPenetration < 0.0 {
+		return normal, penetration, points
+	}
 
-	penetration = math.MaxFloat64
+	rPenetration, rNormal, rPoint := findAxisLeastPenetration(rConvex, lConvex, r.Position(), l.Position())
+	if rPenetration < 0.0 {
+		return normal, penetration, points
+	}
 
-	for _, edge := range minkowskiDifference.Edges() {
-		edgeVector := vector.Subtract(edge.End, edge.Start)
-		pointVector := vector.Subtract(vector.ZERO(), edge.Start)
+	if lPenetration < rPenetration {
+		normal = lNormal
+		penetration = lPenetration
+		points = append(points, lPoint)
+	} else {
+		normal = vector.Invert(rNormal)
+		penetration = rPenetration
+		points = append(points, rPoint)
+	}
 
-		if !pointVector.OnTheRight(edgeVector) {
-			normal = vector.Vector{}
-			penetration = 0
-			return normal, penetration, points
-		}
+	return normal, -penetration, points
+}
 
-		perpendicular := vector.Vector{-edgeVector.Y, edgeVector.X}
-		perpendicular.Normalize()
+func findAxisLeastPenetration(l, r *convex.Convex, lPos, rPos vector.Vector) (minPenetration float64, bestNormal vector.Vector, bestPoint vector.Vector) {
+	minPenetration = math.MaxFloat64
 
-		lhsVector := vector.Subtract(vector.Vector{}, edge.Start)
+	for _, edge := range l.Edges() {
+		s := r.Support(vector.Invert(edge.Normal))
 
-		proj := vector.Multiply(perpendicular, vector.Dot(lhsVector, perpendicular))
+		v := vector.Add(edge.Start, lPos)
+		v.Subtract(rPos)
 
-		if proj.Size() < penetration {
-			normal = perpendicular
-			penetration = proj.Size()
+		penetration := -vector.Dot(edge.Normal, vector.Subtract(s, v))
+
+		if penetration < minPenetration {
+			bestNormal = edge.Normal
+			minPenetration = penetration
+			bestPoint = vector.Add(vector.Add(s, rPos), vector.Multiply(bestNormal, penetration*0.5))
 		}
 	}
 
-	for _, point := range lhsConvex.Hull() {
-		worldPoint := vector.Add(lhs.Position(), lhs.Rotation().RotateVector(point))
-		if rhsConvex.InHull(rhs.Position(), rhs.Rotation(), worldPoint) {
-			points = append(points, worldPoint)
-		}
-	}
-
-	for _, point := range rhsConvex.Hull() {
-		worldPoint := vector.Add(rhs.Position(), rhs.Rotation().RotateVector(point))
-		if lhsConvex.InHull(lhs.Position(), lhs.Rotation(), worldPoint) {
-			points = append(points, worldPoint)
-		}
-	}
-
-	return normal, penetration, points
+	return minPenetration, bestNormal, bestPoint
 }
