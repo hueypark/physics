@@ -94,3 +94,7 @@ func (v Vector) Size() float64 {
 func (v Vector) SizeSquared() float64 {
 	return v.X*v.X + v.Y*v.Y
 }
+
+func Invert(v Vector) Vector {
+	return Vector{-v.X, -v.Y}
+}
