@@ -87,7 +87,7 @@ func run() {
 
 func createRandomShape(position vector.Vector, rotation rotator.Rotator, velocity vector.Vector) *body.Body {
 	var b *body.Body
-	switch random.Random(1, 2) {
+	switch random.Random(0, 2) {
 	case 0:
 		b = createBullet(position, velocity)
 	case 1:

@@ -26,7 +26,7 @@ func main() {
 
 func run() {
 	cfg := pixelgl.WindowConfig{
-		Title:  "Minkowski Difference",
+		Title:  "Bullet to Convex",
 		Bounds: pixel.R(-WINDOW_WIDTH/2, -WINDOW_HEIGHT/2, WINDOW_WIDTH/2, WINDOW_HEIGHT/2),
 		VSync:  true,
 	}

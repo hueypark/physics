@@ -114,7 +114,9 @@ func bulletToConvex(lhs, rhs *body.Body) (normal vector.Vector, penetration floa
 		}
 	}
 
-	points = append(points, lhs.Position())
+	points = append(points, vector.Add(
+		lhs.Position(),
+		vector.Multiply(normal, -0.5*penetration)))
 
 	return normal, penetration, points
 }
