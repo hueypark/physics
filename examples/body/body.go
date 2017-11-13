@@ -91,7 +91,7 @@ func createRandomShape(position vector.Vector, rotation rotator.Rotator, velocit
 	case 0:
 		b = createBullet(position, velocity)
 	case 1:
-		b = createCircle(10, position, velocity)
+		b = createCircle(random.FRandom(10, 50), position, velocity)
 	case 2:
 		b = createConvex(
 			[]vector.Vector{

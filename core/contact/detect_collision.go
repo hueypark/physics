@@ -136,7 +136,9 @@ func circleToCircle(lhs, rhs *body.Body) (normal vector.Vector, penetration floa
 
 	normal.Normalize()
 	penetration = radius - distance
-	points = append(points, vector.Add(vector.Multiply(normal, lhsCircle.Radius), lhs.Position()))
+	points = append(points, vector.Add(
+		lhs.Position(),
+		vector.Add(vector.Multiply(normal, lhsCircle.Radius), vector.Multiply(normal, -0.5*penetration))))
 
 	return normal, penetration, points
 }

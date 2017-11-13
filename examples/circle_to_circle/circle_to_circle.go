@@ -25,7 +25,7 @@ func main() {
 
 func run() {
 	cfg := pixelgl.WindowConfig{
-		Title:  "Minkowski Difference",
+		Title:  "Circle to Circle",
 		Bounds: pixel.R(-WINDOW_WIDTH/2, -WINDOW_HEIGHT/2, WINDOW_WIDTH/2, WINDOW_HEIGHT/2),
 		VSync:  true,
 	}
