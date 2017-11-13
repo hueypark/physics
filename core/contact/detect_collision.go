@@ -4,7 +4,6 @@ import (
 	"math"
 
 	"github.com/hueypark/physics/core/body"
-	"github.com/hueypark/physics/core/closest_point"
 	"github.com/hueypark/physics/core/math/vector"
 	"github.com/hueypark/physics/core/shape"
 	"github.com/hueypark/physics/core/shape/circle"
@@ -142,48 +141,30 @@ func circleToCircle(lhs, rhs *body.Body) (normal vector.Vector, penetration floa
 	return normal, penetration, points
 }
 
-func circleToConvex(lhs, rhs *body.Body) (normal vector.Vector, penetration float64, points []vector.Vector) {
-	lhsCircle := lhs.Shape.(*circle.Circle)
-	rhsConvex := rhs.Shape.(*convex.Convex)
+func circleToConvex(l, r *body.Body) (normal vector.Vector, penetration float64, points []vector.Vector) {
+	lCircle := l.Shape.(*circle.Circle)
+	rConvex := r.Shape.(*convex.Convex)
 
-	penetration = math.MaxFloat64
-	var selectedEdge convex.Edge
+	minPenetration := math.MaxFloat64
+	edgeNormal := vector.ZERO()
+	for _, edge := range rConvex.Edges() {
+		p := -vector.Dot(edge.Normal, vector.Subtract(l.Position(), vector.Add(r.Position(), edge.Start)))
 
-	for _, edge := range rhsConvex.Edges() {
-		worldStart := rhs.Rotation().RotateVector(edge.Start)
-		worldStart = vector.Add(rhs.Position(), worldStart)
-		worldEnd := rhs.Rotation().RotateVector(edge.End)
-		worldEnd = vector.Add(rhs.Position(), worldEnd)
-		edgeVector := vector.Subtract(worldEnd, worldStart)
-
-		perpendicular := vector.Vector{-edgeVector.Y, edgeVector.X}
-		perpendicular.Normalize()
-
-		lhsVector := vector.Subtract(lhs.Position(), worldStart)
-
-		projSize := vector.Dot(lhsVector, perpendicular)
-
-		if projSize < -lhsCircle.Radius {
-			return vector.ZERO(), 0, points
+		if p < -lCircle.Radius {
+			return normal, penetration, points
 		}
 
-		if projSize < penetration {
-			normal = perpendicular
-			penetration = projSize
-			selectedEdge = edge
+		if p < minPenetration {
+			minPenetration = p
+			edgeNormal = edge.Normal
 		}
 	}
 
-	worldStart := rhs.Rotation().RotateVector(selectedEdge.Start)
-	worldStart = vector.Add(rhs.Position(), worldStart)
-	worldEnd := rhs.Rotation().RotateVector(selectedEdge.End)
-	worldEnd = vector.Add(rhs.Position(), worldEnd)
-	closestPoint := closest_point.LineSegmentToPoint(lhs.Position(), worldStart, worldEnd)
-	if lhsCircle.Radius*lhsCircle.Radius < vector.Subtract(lhs.Position(), closestPoint).SizeSquared() {
-		return vector.ZERO(), 0, points
-	}
-
-	points = append(points, closestPoint)
+	normal = vector.Invert(edgeNormal)
+	penetration = lCircle.Radius + minPenetration
+	points = append(points, vector.Add(
+		l.Position(),
+		vector.Add(vector.Multiply(normal, lCircle.Radius), vector.Multiply(normal, -0.5*penetration))))
 
 	return normal, penetration, points
 }
