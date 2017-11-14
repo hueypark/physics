@@ -4,11 +4,11 @@ import (
 	"math"
 
 	"github.com/hueypark/physics/core/body"
+	"github.com/hueypark/physics/core/math/rotator"
 	"github.com/hueypark/physics/core/math/vector"
 	"github.com/hueypark/physics/core/shape"
 	"github.com/hueypark/physics/core/shape/circle"
 	"github.com/hueypark/physics/core/shape/convex"
-	"github.com/hueypark/physics/core/math/rotator"
 )
 
 func (c *Contact) DetectCollision() {
@@ -153,9 +153,11 @@ func circleToConvex(l, r *body.Body) (normal vector.Vector, penetration float64,
 	rConvex := r.Shape.(*convex.Convex)
 
 	minPenetration := math.MaxFloat64
-	edgeNormal := vector.ZERO()
 	for _, edge := range rConvex.Edges() {
-		p := -vector.Dot(edge.Normal, vector.Subtract(l.Position(), vector.Add(r.Position(), edge.Start)))
+		edgeNormal := r.Rotation().RotateVector(edge.Normal)
+		edgeStart := r.Rotation().RotateVector(edge.Start)
+
+		p := -vector.Dot(edgeNormal, vector.Subtract(l.Position(), vector.Add(r.Position(), edgeStart)))
 
 		if p < -lCircle.Radius {
 			return normal, penetration, points
@@ -163,11 +165,11 @@ func circleToConvex(l, r *body.Body) (normal vector.Vector, penetration float64,
 
 		if p < minPenetration {
 			minPenetration = p
-			edgeNormal = edge.Normal
+			normal = edgeNormal
 		}
 	}
 
-	normal = vector.Invert(edgeNormal)
+	normal.Invert()
 	penetration = lCircle.Radius + minPenetration
 	points = append(points, vector.Add(
 		l.Position(),
