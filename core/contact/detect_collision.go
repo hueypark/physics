@@ -8,6 +8,7 @@ import (
 	"github.com/hueypark/physics/core/shape"
 	"github.com/hueypark/physics/core/shape/circle"
 	"github.com/hueypark/physics/core/shape/convex"
+	"github.com/hueypark/physics/core/math/rotator"
 )
 
 func (c *Contact) DetectCollision() {
@@ -179,12 +180,12 @@ func convexToConvex(l, r *body.Body) (normal vector.Vector, penetration float64,
 	lConvex := l.Shape.(*convex.Convex)
 	rConvex := r.Shape.(*convex.Convex)
 
-	lPenetration, lNormal, lPoint := findAxisLeastPenetration(lConvex, rConvex, l.Position(), r.Position())
+	lPenetration, lNormal, lPoint := findAxisLeastPenetration(lConvex, rConvex, l.Position(), r.Position(), l.Rotation(), r.Rotation())
 	if lPenetration < 0.0 {
 		return normal, penetration, points
 	}
 
-	rPenetration, rNormal, rPoint := findAxisLeastPenetration(rConvex, lConvex, r.Position(), l.Position())
+	rPenetration, rNormal, rPoint := findAxisLeastPenetration(rConvex, lConvex, r.Position(), l.Position(), r.Rotation(), l.Rotation())
 	if rPenetration < 0.0 {
 		return normal, penetration, points
 	}
@@ -202,19 +203,20 @@ func convexToConvex(l, r *body.Body) (normal vector.Vector, penetration float64,
 	return normal, -penetration, points
 }
 
-func findAxisLeastPenetration(l, r *convex.Convex, lPos, rPos vector.Vector) (minPenetration float64, bestNormal vector.Vector, bestPoint vector.Vector) {
+func findAxisLeastPenetration(l, r *convex.Convex, lPos, rPos vector.Vector, lRot, rRot rotator.Rotator) (minPenetration float64, bestNormal vector.Vector, bestPoint vector.Vector) {
 	minPenetration = math.MaxFloat64
 
 	for _, edge := range l.Edges() {
-		s := r.Support(vector.Invert(edge.Normal))
+		normal := lRot.RotateVector(edge.Normal)
+		s := r.Support(vector.Invert(normal), rRot)
 
-		v := vector.Add(edge.Start, lPos)
+		v := vector.Add(lRot.RotateVector(edge.Start), lPos)
 		v.Subtract(rPos)
 
-		penetration := -vector.Dot(edge.Normal, vector.Subtract(s, v))
+		penetration := -vector.Dot(normal, vector.Subtract(s, v))
 
 		if penetration < minPenetration {
-			bestNormal = edge.Normal
+			bestNormal = normal
 			minPenetration = penetration
 			bestPoint = vector.Add(vector.Add(s, rPos), vector.Multiply(bestNormal, penetration*0.5))
 		}

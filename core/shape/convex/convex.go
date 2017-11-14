@@ -79,14 +79,14 @@ func MinkowskiDifference(a Convex, posA vector.Vector, rotA rotator.Rotator, b C
 	return New(vertices)
 }
 
-func (c *Convex) Support(dir vector.Vector) (bestVertex vector.Vector) {
+func (c *Convex) Support(dir vector.Vector, rot rotator.Rotator) (bestVertex vector.Vector) {
 	bestProjection := -math.MaxFloat64
 
 	for _, vertex := range c.Hull() {
-		projection := vector.Dot(vertex, dir)
+		projection := vector.Dot(rot.RotateVector(vertex), dir)
 
 		if bestProjection < projection {
-			bestVertex = vertex
+			bestVertex = rot.RotateVector(vertex)
 			bestProjection = projection
 		}
 	}
