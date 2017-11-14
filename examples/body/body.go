@@ -79,6 +79,12 @@ func run() {
 
 		util.DrawWorld(imd, world)
 
+		for _, b := range world.Bodys() {
+			if isOutbound(b.Position()) {
+				world.ReservedDelete(b.Id())
+			}
+		}
+
 		imd.Draw(win)
 
 		win.Update()
@@ -139,7 +145,7 @@ func createConvex(vertices []vector.Vector, position vector.Vector, rotation rot
 	b.SetMass(1)
 	b.SetShape(convex.New(vertices))
 	b.SetPosition(position)
-	//b.SetRotation(rotation)
+	b.SetRotation(rotation)
 	b.Velocity = velocity
 
 	return b
