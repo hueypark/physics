@@ -92,9 +92,9 @@ func bulletToConvex(lhs, rhs *body.Body) (normal vector.Vector, penetration floa
 
 	for _, edge := range rhsConvex.Edges() {
 		worldStart := rhs.Rotation().RotateVector(edge.Start)
-		worldStart = vector.Add(rhs.Position(), worldStart)
+		worldStart.Add(rhs.Position())
 		worldEnd := rhs.Rotation().RotateVector(edge.End)
-		worldEnd = vector.Add(rhs.Position(), worldEnd)
+		worldEnd.Add(rhs.Position())
 		edgeVector := vector.Subtract(worldEnd, worldStart)
 		pointVector := vector.Subtract(lhs.Position(), worldStart)
 
