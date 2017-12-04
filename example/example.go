@@ -3,6 +3,8 @@ package main
 import (
 	"time"
 
+	"github.com/toqueteos/webbrowser"
+
 	"github.com/hueypark/physics/core/body"
 	"github.com/hueypark/physics/core/shape"
 	"github.com/hueypark/physics/core/shape/circle"
@@ -43,7 +45,9 @@ func main() {
 		}
 	}()
 
-	s.Start("127.0.0.1:8080")
+	url := "127.0.0.1:8080"
+	webbrowser.Open("http://" + url)
+	s.Start(url)
 }
 
 func broadcastActorCreate(s *server.Server, b body.Body) {
