@@ -20,6 +20,9 @@ socket.onmessage = function (evt) {
         case "ACTOR_UPDATE_SHAPE_CONVEX":
             world.UpdateActorShapeConvex(message.id, message.points)
             break
+        case "DEBUG_LINE_CREATE":
+            world.DebugLineCreate(message.start, message.end)
+            break
         default:
             console.log(data)
             break

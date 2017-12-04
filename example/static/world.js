@@ -58,6 +58,19 @@ class World {
         actor.drawPolygon(pixiPoints)
     }
 
+    DebugLineCreate(start, end) {
+        let line = new PIXI.Graphics()
+        line.lineStyle(1, 0x00FF00, 1)
+
+        line.moveTo(start.x, start.y)
+        line.lineTo(end.x, end.y)
+
+        this.stage.addChild(line)
+        setTimeout(()=>{
+            this.stage.removeChild(line)
+        }, 1000)
+    }
+
     DeleteActor(id) {
         let actor = this.actors[id]
         this.actors[id] = null

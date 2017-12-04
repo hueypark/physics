@@ -6,6 +6,7 @@ import (
 	"github.com/toqueteos/webbrowser"
 
 	"github.com/hueypark/physics/core/body"
+	"github.com/hueypark/physics/core/math/vector"
 	"github.com/hueypark/physics/core/shape"
 	"github.com/hueypark/physics/core/shape/circle"
 	"github.com/hueypark/physics/core/shape/convex"
@@ -41,6 +42,17 @@ func main() {
 					Id:  b.Id(),
 					Pos: message.Vector{X: b.Position().X, Y: b.Position().Y},
 					Rot: b.Rotation().Degrees})
+			}
+
+			for _, c := range world.Contacts() {
+				indent := vector.Multiply(c.Normal(), 0.5*c.Penetration())
+				for _, p := range c.Points() {
+					start := vector.Add(p, indent)
+					end := vector.Subtract(p, indent)
+					s.Broadcast(message.DebugLineCreate{
+						Start: message.Vector{X: start.X, Y: start.Y},
+						End:   message.Vector{X: end.X, Y: end.Y}})
+				}
 			}
 		}
 	}()
