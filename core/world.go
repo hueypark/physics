@@ -36,7 +36,7 @@ func (w *World) Tick(delta float64) {
 }
 
 func (w *World) Add(body *body.Body) {
-	w.bodys[context.Context.IdGenerator.Generate()] = body
+	w.bodys[body.Id()] = body
 }
 
 func (w *World) ReservedDelete(id int64) {
