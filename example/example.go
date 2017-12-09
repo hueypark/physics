@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/toqueteos/webbrowser"
@@ -28,6 +29,17 @@ func main() {
 		for _, b := range world.Bodys() {
 			broadcastActorCreate(s, *b)
 		}
+	})
+
+	s.SetOnMessage(func(id int64, m []byte) {
+		var actorUpdate message.ActorUpdate
+		err := json.Unmarshal(m, &actorUpdate)
+		if err != nil {
+			panic(err)
+		}
+
+		w := example.World()
+		w.SetBodyPosition(actorUpdate.Id, vector.Vector{actorUpdate.Pos.X, actorUpdate.Pos.Y})
 	})
 
 	go func() {

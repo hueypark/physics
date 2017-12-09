@@ -1,5 +1,7 @@
 class World {
     constructor(body) {
+        this.selectedActorId = null
+
         const WIDTH = window.innerWidth, HEIGHT = window.innerHeight
         this.renderer = PIXI.autoDetectRenderer(WIDTH, HEIGHT)
         body.appendChild(this.renderer.view)
@@ -15,6 +17,13 @@ class World {
             requestAnimationFrame(update)
 
             this.renderer.render(this.stage)
+
+            if ( this.selectedActorId ) {
+                socket.send(JSON.stringify(new ActorCreate(
+                    this.selectedActorId,
+                    this.renderer.plugins.interaction.mouse.getLocalPosition(this.stage)
+                    )))
+            }
         }
 
         requestAnimationFrame(update)
@@ -26,6 +35,18 @@ class World {
         actor.y = pos.y
         actor.rotation = rot * PIXI.DEG_TO_RAD
         actor.lineStyle(1, 0xFFFFFF, 1)
+        actor.interactive = true;
+        actor.buttonMode = true;
+        actor.hitArea = new PIXI.Circle(0, 0, 100);
+        actor.on('pointerdown', () => {
+            this.selectedActorId = id
+        })
+        actor.on('pointerup', () => {
+            this.selectedActorId = null
+        })
+        actor.on('pointerout', () => {
+            this.selectedActorId = null
+        })
 
         this.actors.set(id, actor)
         this.stage.addChild(actor)
