@@ -1,9 +1,10 @@
 package physics
 
 import (
+	"sync"
+
 	"github.com/hueypark/physics/core/body"
 	"github.com/hueypark/physics/core/contact"
-	"github.com/hueypark/physics/core/context"
 	"github.com/hueypark/physics/core/math/vector"
 )
 
@@ -12,6 +13,7 @@ type World struct {
 	gravity               vector.Vector
 	contacts              []*contact.Contact
 	reservedDeleteBodyIds []int64
+	mux                   sync.RWMutex
 }
 
 func New() *World {
@@ -21,6 +23,9 @@ func New() *World {
 }
 
 func (w *World) Tick(delta float64) {
+	w.mux.Lock()
+	defer w.mux.Unlock()
+
 	w.deleteReserveDeleteBodys()
 
 	w.contacts = w.broadPhase()
@@ -45,6 +50,16 @@ func (w *World) ReservedDelete(id int64) {
 
 func (w *World) SetGravity(gravity vector.Vector) {
 	w.gravity = gravity
+}
+
+func (w *World) SetBodyPosition(id int64, pos vector.Vector) {
+	w.mux.Lock()
+	defer w.mux.Unlock()
+
+	b := w.bodys[id]
+	if b != nil {
+		b.SetPosition(pos)
+	}
 }
 
 func (w *World) Bodys() map[int64]*body.Body {
